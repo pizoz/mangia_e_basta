@@ -1,0 +1,26 @@
+App:
+    deve contenere firstRun per stabilire se è la prima volta che viene avviata l'App
+    nel caso sia cosi: viene restituita la FirstRunPage che mi restituirà la posizione la prima volta
+    altrimenti l'applicazione normale
+    Qui dev'essere salvata la posizione se è il primo avvio, altrimenti va calcolata
+
+Landing Page:
+    SOLO AL PRIMO AVVIO
+    
+    Forse meglio di no
+    non fa nulla, ma quando click sul bottone viene mandato a EnablePosition
+
+Allow Position:
+    Nulla di che:
+    bottone con onClick per richiedere i permessi
+    REQUIRES:
+        PositionController (lo importiamo dai vecchi esercizi)
+
+HomePage:
+    REQUIRES:
+        Un utente -> getUserFromAsync che lo crea la prima volta e lo salva in AsyncStorage, altrimenti lo prende da AsyncStorage
+        La sua Posizione 
+    PRIMA CHE VENGA MOSTRATO QUALUNQUE COSA:
+DetailMenu:
+ProfilePage:
+Confirm Order

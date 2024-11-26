@@ -1,12 +1,43 @@
-import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function App() {
-  return (
+  const [firstRun, setFirstRun] = useState(null);
+  const [coords, setCoords] = useState(null);
+  const [user, setUser] = useState(null);
+  const [changed, setChanged] = useState(false);
+
+  const checkFirstRun = async () => {
+    const user = JSON.parse(await AsyncStorage.getItem('user'));
+    if (!user) {
+      setFirstRun(true);
+
+    } else {
+      setUser(user);
+      setFirstRun(false);
+    }
+  }
+  useEffect(() => {
+    checkFirstRun().catch((e) => console.log(e));
+  }, [changed]);
+
+  if (firstRun) {
+    return (
+      <FirstStartComponent setChanged={setChanged} setCoords={setCoords} setUser={setUser}/>
+    )
+  }
+  if (!coords && !firstRun) {
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <Text>Loading...</Text>
     </View>
+  }
+  return (
+    <navigationContainer>
+      <stack.Navigator>
+        <stack.Screen name="Home" component={HomeScreen} />
+        <stack.Screen name="Details" component={DetailsScreen} />
+      </stack.Navigator>
+    </navigationContainer>
   );
 }
 
