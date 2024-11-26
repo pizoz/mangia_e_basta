@@ -11,14 +11,17 @@ export default function App() {
     const user = JSON.parse(await AsyncStorage.getItem('user'));
     if (!user) {
       setFirstRun(true);
-
     } else {
       setUser(user);
       setFirstRun(false);
     }
   }
+
   useEffect(() => {
     checkFirstRun().catch((e) => console.log(e));
+    if (!firstRun) {
+      // prendo la posizione
+    }
   }, [changed]);
 
   if (firstRun) {
