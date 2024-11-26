@@ -7,6 +7,8 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [changed, setChanged] = useState(false);
 
+  console.log('ciao');
+
   const checkFirstRun = async () => {
     const user = JSON.parse(await AsyncStorage.getItem('user'));
     if (!user) {
