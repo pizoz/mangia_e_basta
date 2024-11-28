@@ -8,6 +8,7 @@ export default class PositionController {
   }
 
   async locationPermissionAsync() {
+    
     const grantedPermission = await Location.getForegroundPermissionsAsync();
     console.log(grantedPermission);
     if (grantedPermission.status === "granted") {

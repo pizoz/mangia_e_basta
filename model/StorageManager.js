@@ -1,7 +1,5 @@
 import * as SQLite from "expo-sqlite";
-import CommunicationController from "../CommunicationController";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import User from "./User";
 export default class StorageManager {
   // Database
   constructor() {

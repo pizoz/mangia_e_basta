@@ -1,6 +1,6 @@
-import CommunicationController from "../CommunicationController";
+import CommunicationController from "./CommunicationController";
 import StorageManager from "./StorageManager";
-import User from "./User";
+
 class ViewModel {
   
   static storageManager = null;
@@ -41,7 +41,7 @@ class ViewModel {
     // Se non lo trovo, chiedo al server di crearlo e lo salvo nell'AsyncStorage
     // per user qui si intende la coppia uid, sid e non tutte le informazioni dell'utente
     if (!user) {
-      const newUser = await User.create();
+      const newUser = await CommunicationController.createUser();
       try {
         await this.storageManager.saveUserAsync(newUser.uid, newUser.sid);
       } catch (error) {
@@ -133,6 +133,30 @@ class ViewModel {
       return menu.name !== "string";
     });
     return menus;
+  }
+  static async checkFirstRun() {
+    await this.initDB(false);
+    let firstRun = false;
+    let user = null;
+    try {
+      user = await this.storageManager.getUserAsync();
+    } catch (error) {
+      console.log(error);
+    }
+    if (!user) {
+      firstRun = true;
+    }
+    return firstRun;
+  }
+  static async initApp() {
+    await this.initDB(false);
+    const firstRun = await this.checkFirstRun();
+    if (firstRun) {
+      return {firstRun, user: null};
+    } else {
+      const user = await this.getUserFromAsyncStorage();
+      return {firstRun, user};
+    }
   }
 }
 
