@@ -5,7 +5,7 @@ class ViewModel {
   
   static storageManager = null;
   static positionController = null;
-  
+
   static async initDB(db) {
     // il valore db indica un booleano: true se si vuole aprire il database, false altrimenti
     // in entrambi i casi si inizializza lo storageManager se non è già stato inizializzato
@@ -168,6 +168,11 @@ class ViewModel {
       const user = await this.getUserFromAsyncStorage();
       return {firstRun: firstRun, user: user, positionController: this.positionController};
     }
+  }
+  static async getMenuDetail(menu, user) {
+    let newMenu = await CommunicationController.GetMenu(menu.mid, user.sid, this.positionController.location.coords.latitude, this.positionController.location.coords.longitude);
+    menu = {...menu, ...newMenu};
+    return menu;
   }
 }
 

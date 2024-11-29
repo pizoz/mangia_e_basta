@@ -27,9 +27,11 @@ export default function App() {
       if (res.firstRun === false) {
         res.positionController.getLocationAsync().then( () => {
           console.log("Location: ", res.positionController.location);
+          res.positionController.reverseGeocode().then((address) => {
+            console.log("Address: ", address);
+          });
         }).catch((error) => {
           console.log(error);
-          
         });
         
       }
