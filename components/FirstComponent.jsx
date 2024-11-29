@@ -6,6 +6,7 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  ImageBackground
 } from "react-native";
 import ViewModel from "../model/ViewModel";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -25,11 +26,10 @@ const FirstComponent = ({ setChanged, setUser, positionController }) => {
     return (
       <Fragment>
         <SafeAreaView style={styles.container}>
-          <Image
+          <ImageBackground
             source={require("../assets/Firstcomponent.png")}
-            style={styles.backgroundImage}
-            resizeMode="cover"
-          />
+            style={styles.background}
+          >
           <View style={styles.overlay}>
             <View style={styles.titleContainer}>
               <Text style={styles.title}>MANGIA</Text>
@@ -42,6 +42,7 @@ const FirstComponent = ({ setChanged, setUser, positionController }) => {
               <Text style={styles.buttonText}>Inizia</Text>
             </TouchableOpacity>
           </View>
+          </ImageBackground>
         </SafeAreaView>
       </Fragment>
     );
@@ -76,10 +77,10 @@ const styles = StyleSheet.create({
     height: height,
     width: width,
   },
-  backgroundImage: {
+  background: {
     width: "100%",
     height: "100%",
-    position: "absolute",
+    
   },
   overlay: {
     flex: 1,
