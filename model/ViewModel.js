@@ -58,10 +58,10 @@ class ViewModel {
       return user;
     }
   }
-  static async GetMenu(mid, sid, lat, lng) {
+  static async GetMenu(mid, sid) {
     await this.initDB(false);
     try {
-      return await CommunicationController.GetMenu(mid, sid, lat, lng);
+      return await CommunicationController.GetMenu(mid, sid, this.positionController.location.coords.latitude, this.positionController.location.coords.longitude);
     } catch (error) {
       console.log(error);
     }
@@ -113,19 +113,26 @@ class ViewModel {
     // se la trovo e la versione è quella aggiornata la restituisco
     return savedImage.image;
   }
-  static async getMenuPage(mid, sid, lat, lng) {
+  static async getMenuDetail(menu, sid) {
     await this.initDB(true);
 
-    const menu = await this.GetMenu(mid, sid, lat, lng);
-    console.log("Menu: ", menu);
-    if (!menu) {
-      console.log("Menu non trovato");
+    const newmenu = await this.GetMenu(menu.mid, sid);
+    if (!newmenu) {
       return null;
     }
-    const image = await this.getUpdatedImage(mid, sid, menu.imageVersion);
-    menu.image = `data:image/png;base64,${image}`;
+    menu = {...menu, ...newmenu}
+    //restituisce menu, con immagine e longDesc
     return menu;
   }
+
+  static async getHomePageMenu(menu, sid){
+    const image = await this.getUpdatedImage(menu.mid, sid, menu.imageVersion);
+    menu.image = `data:image/png;base64,${image}`;
+    //questo menu ha info menu e immagine (no longdesc)
+    console.log(menu.image == null)
+    return menu;
+  }
+
   static async reset() {
     // elimina il database e l'utente dall'AsyncStorage
     await this.initDB(true);
@@ -133,13 +140,14 @@ class ViewModel {
     await this.storageManager.deleteUserAsync();
   }
 
-  static async getMenus(lat, long, sid) {
-    // restituisce i 20 menu più vicini alla posizione passata e li filtra eliminando quelli vuoti
+  static async getMenus(sid) {
+    console.log("getMenus")
+    // restituisce i 20 menu più vicini alla posizione passata
     let menus = [];
-    menus = await CommunicationController.GetMenus(lat, long, sid);
-    menus = menus.filter((menu) => {
-      return menu.name !== "string";
-    });
+    menus = await CommunicationController.GetMenus(this.positionController.location.coords.latitude, this.positionController.location.coords.longitude, sid);
+    for (let menu of menus) {
+      menu = await this.getHomePageMenu(menu,sid)
+    }
     return menus;
   }
   static async checkFirstRun() {
