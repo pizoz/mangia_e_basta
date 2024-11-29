@@ -32,4 +32,11 @@ export default class PositionController {
       this.location = await Location.getCurrentPositionAsync();
     }
   }
+  async reverseGeocode() {
+    let address = await Location.reverseGeocodeAsync({
+      latitude: this.location.coords.latitude,
+      longitude: this.location.coords.longitude,
+    });
+    return address;
+  };
 }
