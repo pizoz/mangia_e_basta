@@ -6,14 +6,13 @@ import { useState } from "react";
 import Home from "./components/Home";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import PositionController from "./model/PositionController";
 
 const stack = createStackNavigator();
 
 export default function App() {
   const [positionController, setPC] = useState(null);
   const [firstRun, setFirstRun] = useState(null);
-  
+  const [location, setLocation] = useState(null)
   const [user, setUser] = useState(null);
   const [changed, setChanged] = useState(false);
 
@@ -26,14 +25,13 @@ export default function App() {
       console.log("User: ", res.user);
       if (res.firstRun === false) {
         res.positionController.getLocationAsync().then( () => {
-          console.log("Location: ", res.positionController.location);
+          setLocation(res.positionController.location)
           res.positionController.reverseGeocode().then((address) => {
             console.log("Address: ", address);
           });
         }).catch((error) => {
           console.log(error);
         });
-        
       }
     });
     
@@ -50,14 +48,21 @@ export default function App() {
       </View>
     );
   }
+  console.log("FirstRun ", firstRun)
   if (firstRun === false) {
-    return (
-      <NavigationContainer>
-        <stack.Navigator initialRouteName="Home">
-          <stack.Screen name="Home" component={Home} />
-        </stack.Navigator>
-      </NavigationContainer>
-    );
+    console.log(positionController)
+    console.log(positionController.location)
+    if (user !== null && location !== null) {
+      console.log("Cas falso",positionController.location)
+      return (
+        <NavigationContainer>
+          <stack.Navigator initialRouteName="Home">
+            <stack.Screen name="Home" component={Home} initialParams={{user: user}}/>
+          </stack.Navigator>
+        </NavigationContainer>
+      );
+    }
+    
   }
   return (
     <View style={styles.container}>
