@@ -1,15 +1,19 @@
 import CommunicationController from "./CommunicationController";
 import StorageManager from "./StorageManager";
-
+import PositionController from "./PositionController";
 class ViewModel {
   
   static storageManager = null;
-
+  static positionController = null;
+  
   static async initDB(db) {
     // il valore db indica un booleano: true se si vuole aprire il database, false altrimenti
     // in entrambi i casi si inizializza lo storageManager se non è già stato inizializzato
     if (!this.storageManager) {
       this.storageManager = new StorageManager();
+    }
+    if (!this.positionController) {
+      this.positionController = new PositionController();
     }
     if (db) {
       await this.storageManager.openDB();
@@ -62,6 +66,10 @@ class ViewModel {
       console.log(error);
     }
     return null;
+  }
+  static async getPositionController() {
+    await this.initDB(false);
+    return this.positionController;
   }
   static async getUpdatedImage(mid, sid, lastVersion) {
     console.log("getUpdatedImage");
@@ -135,6 +143,7 @@ class ViewModel {
     return menus;
   }
   static async checkFirstRun() {
+    console.log("checkFirstRun");
     await this.initDB(false);
     let firstRun = false;
     let user = null;
@@ -149,13 +158,15 @@ class ViewModel {
     return firstRun;
   }
   static async initApp() {
+    console.log("initApp");
     await this.initDB(false);
     const firstRun = await this.checkFirstRun();
+    
     if (firstRun) {
-      return {firstRun, user: null};
+      return {firstRun: firstRun, user: null, positionController: this.positionController};
     } else {
       const user = await this.getUserFromAsyncStorage();
-      return {firstRun, user};
+      return {firstRun: firstRun, user: user, positionController: this.positionController};
     }
   }
 }

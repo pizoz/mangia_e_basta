@@ -11,7 +11,7 @@ import PositionController from "./model/PositionController";
 const stack = createStackNavigator();
 
 export default function App() {
-  const positionController = new PositionController();
+  const [positionController, setPC] = useState(null);
   const [firstRun, setFirstRun] = useState(null);
   
   const [user, setUser] = useState(null);
@@ -21,23 +21,21 @@ export default function App() {
     ViewModel.initApp().then((res) => {
       setFirstRun(res.firstRun);
       setUser(res.user);
+      setPC(res.positionController);
       console.log("FirstRun: ", res.firstRun);
       console.log("User: ", res.user);
-      if (!res.firstRun) {
-        positionController.getLocationAsync().then((res) => {
-          console.log("location: ", res);
+      if (res.firstRun === false) {
+        res.positionController.getLocationAsync().then( () => {
+          console.log("Location: ", res.positionController.location);
+        }).catch((error) => {
+          console.log(error);
+          
         });
+        
       }
     });
+    
   }, [changed]);
-
-  if (firstRun === null) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading... firstRUn Null</Text>
-      </View>
-    );
-  }
 
   if (firstRun) {
     return (
@@ -59,7 +57,11 @@ export default function App() {
       </NavigationContainer>
     );
   }
-
+  return (
+    <View style={styles.container}>
+      <Text>Loading... firstRUn Null</Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
