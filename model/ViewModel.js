@@ -174,17 +174,18 @@ class ViewModel {
   }
   static async initApp() {
     console.log("initApp");
-    
+    //  inizializza il positionController e lo storageManager
     await this.initViewModel(false);
-    
+    // controlla se è il primo avvio dell'app controllando se c'è un utente nell'AsyncStorage
     const firstRun = await this.checkFirstRun();
-    
+    // se è la prima volta che avviamo l'app restituisce un oggetto con firstRun a true e user a null
     if (firstRun) {
       return {firstRun: firstRun, user: null, location: null};
     } else {
+      // altrimenti restituisce false,  l'utente trovato nell'AsyncStorage e la posizione attuale
       const user = await this.getUserFromAsyncStorage();
       await this.positionController.getLocationAsync();
-      return {firstRun: firstRun, user: user, location: this.positionController.location};
+      return {firstRun: firstRun,  user: user, location: this.positionController.location};
     }
   }
   static async getMenuDetail(menu, user) {

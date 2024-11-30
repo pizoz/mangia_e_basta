@@ -44,7 +44,7 @@ export default function App() {
         <NavigationContainer>
           <stack.Navigator initialRouteName="Home">
             <stack.Screen name="Home" component={Home} initialParams={{user: user}}  options={{headerShown: false}}/>
-            <stack.Screen name="Menu" component={Menu} options={{headerShown: false}} />
+            <stack.Screen name="Menu" component={Menu} options={{headerShown: false}}/>
           </stack.Navigator>
         </NavigationContainer>
       );
