@@ -1,8 +1,6 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
 import ViewModel from "../model/ViewModel";
-import Menu from "./Menu";
-import { useEffect } from "react";
 import { useEffect } from "react";
 
 const Home = ({ navigation, route }) => {
