@@ -4,14 +4,13 @@ import ViewModel from "./model/ViewModel";
 import FirstComponent from "./components/FirstComponent";
 import { useState } from "react";
 import Home from "./components/Home";
-import Menu from "./components/Menu";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import Menu from "./components/Menu";
 
 const stack = createStackNavigator();
 
 export default function App() {
-  const [positionController, setPC] = useState(null);
   const [firstRun, setFirstRun] = useState(null);
   const [location, setLocation] = useState(null)
   const [user, setUser] = useState(null);
@@ -21,19 +20,7 @@ export default function App() {
     ViewModel.initApp().then((res) => {
       setFirstRun(res.firstRun);
       setUser(res.user);
-      setPC(res.positionController);
-      console.log("FirstRun: ", res.firstRun);
-      console.log("User: ", res.user);
-      if (res.firstRun === false) {
-        res.positionController.getLocationAsync().then( () => {
-          setLocation(res.positionController.location)
-          res.positionController.reverseGeocode().then((address) => {
-            console.log("Address: ", address);
-          });
-        }).catch((error) => {
-          console.log(error);
-        });
-      }
+      setLocation(res.location);
     });
     
   }, [changed]);
@@ -44,22 +31,20 @@ export default function App() {
         <FirstComponent
           setChanged={setChanged}
           setUser={setUser}
-          positionController={positionController}
         />
       </View>
     );
   }
   console.log("FirstRun ", firstRun)
   if (firstRun === false) {
-    console.log(positionController)
-    console.log(positionController.location)
+    
     if (user !== null && location !== null) {
-      console.log("Cas falso",positionController.location)
+      console.log("Caso falso", location)
       return (
         <NavigationContainer>
           <stack.Navigator initialRouteName="Home">
-            <stack.Screen name="Home" component={Home} initialParams={{user: user}} options={{ headerShown: false }}  />
-            <stack.Screen name="Menu" component={Menu} options={{ headerShown: false }}/>
+            <stack.Screen name="Home" component={Home} initialParams={{user: user}}  options={{headerShown: false}}/>
+            <stack.Screen name="Menu" component={Menu} options={{headerShown: false}}/>
           </stack.Navigator>
         </NavigationContainer>
       );
@@ -68,7 +53,7 @@ export default function App() {
   }
   return (
     <View style={styles.container}>
-      <Text>Loading... firstRUn Null</Text>
+      <Text>Loading...</Text>
     </View>
   );
 }

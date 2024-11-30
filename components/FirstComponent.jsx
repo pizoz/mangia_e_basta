@@ -12,13 +12,13 @@ import ViewModel from "../model/ViewModel";
 import { SafeAreaView } from "react-native-safe-area-context";
 const { width, height } = Dimensions.get("window");
 
-const FirstComponent = ({ setChanged, setUser, positionController }) => {
+const FirstComponent = ({ setChanged, setUser}) => {
   const [screen, setScreen] = useState("FirstScreen");
 
   const onSubmit = async () => {
     const user = await ViewModel.getUserFromAsyncStorage();
     setUser(user);
-    await positionController.getLocationAsync();
+    await ViewModel.positionController.getLocationAsync();
     setChanged(true);
   };
 
