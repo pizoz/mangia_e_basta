@@ -115,8 +115,8 @@ class ViewModel {
   }
   static async getMenuDetail(menu, sid) {
     await this.initDB(true);
-
     const newmenu = await this.GetMenu(menu.mid, sid);
+    
     if (!newmenu) {
       return null;
     }

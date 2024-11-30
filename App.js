@@ -4,6 +4,7 @@ import ViewModel from "./model/ViewModel";
 import FirstComponent from "./components/FirstComponent";
 import { useState } from "react";
 import Home from "./components/Home";
+import Menu from "./components/Menu";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
@@ -58,6 +59,7 @@ export default function App() {
         <NavigationContainer>
           <stack.Navigator initialRouteName="Home">
             <stack.Screen name="Home" component={Home} initialParams={{user: user}}/>
+            <stack.Screen name="Menu" component={Menu} />
           </stack.Navigator>
         </NavigationContainer>
       );
