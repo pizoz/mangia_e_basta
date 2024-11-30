@@ -42,7 +42,7 @@ const Menu = ({ route }) => {
           Prezzo: {longMenu.price ? `${longMenu.price} €` : "N/D"}
         </Text>
         <Text style={styles.deliveryTime}>
-          Tempo di consegna: {longMenu.deliveryTime || "N/D"}
+          Tempo di consegna: {longMenu.deliveryTime === null  ? "N//D" : longMenu.deliveryTime}
         </Text>
       </View>
     </View>
