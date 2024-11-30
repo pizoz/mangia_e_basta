@@ -6,7 +6,7 @@ class ViewModel {
   static storageManager = null;
   static positionController = null;
   // Inizializza StorageManager e PositionController, nel caso in cui ci sia bisogno di aprire il database, lo apre
-  static async initDB(db) {
+  static async initViewModel(db) {
     // il valore db indica un booleano: true se si vuole aprire il database, false altrimenti
     // in entrambi i casi si inizializza lo storageManager se non è già stato inizializzato
     if (!this.storageManager) {
@@ -22,7 +22,7 @@ class ViewModel {
   // Restituisce l'utente dal database, se non lo trova, lo crea, lo salva nel database e lo restituisce
   static async getUserFromDB() {
 
-    await this.initDB(true);
+    await this.initViewModel(true);
     const user = await this.storageManager.getUserFromDB();
     if (!user) {
       const newUser = await CommunicationController.createUser();
@@ -34,7 +34,7 @@ class ViewModel {
   }
   // Restituisce l'utente dall'AsyncStorage, se non lo trova, lo crea, lo salva nell'AsyncStorage e lo restituisce
   static async getUserFromAsyncStorage() {
-    await this.initDB(false);
+    await this.initViewModel(false);
     console.log("getUserFromAsyncStorage");
 
     // Cerco l'utente nell'AsyncStorage
@@ -62,7 +62,7 @@ class ViewModel {
   }
   // Restituisce un menu senza immagine
   static async GetMenu(mid, sid) {
-    await this.initDB(false);
+    await this.initViewModel(false);
     try {
       return await CommunicationController.GetMenu(mid, sid, this.positionController.location.coords.latitude, this.positionController.location.coords.longitude);
     } catch (error) {
@@ -72,7 +72,7 @@ class ViewModel {
   }
   // Restituisce il PositionController
   static async getPositionController() {
-    await this.initDB(false);
+    await this.initViewModel(false);
     return this.positionController;
   }
   // Restituisce l'immagine aggiornata di un menu. Se non la trova nel db o quella trovata è vecchia, la scarica dal server e la salva nel db
@@ -80,7 +80,7 @@ class ViewModel {
   static async getUpdatedImage(mid, sid, lastVersion) {
     console.log("getUpdatedImage");
     // se Db non è aperto lo apro
-    await this.initDB(true);
+    await this.initViewModel(true);
     // cerco l'immagine nel db
     let savedImage;
     try {
@@ -121,7 +121,7 @@ class ViewModel {
   }
   // Restituisce il menu con immagine e longDesc, pronto per essere visualizzato in MenuDetail
   static async getMenuDetail(menu, sid) {
-    await this.initDB(true);
+    await this.initViewModel(true);
 
     const newmenu = await this.GetMenu(menu.mid, sid);
     if (!newmenu) {
@@ -142,7 +142,7 @@ class ViewModel {
   // Resetta il database e l'utente dall'AsyncStorage
   static async reset() {
     // elimina il database e l'utente dall'AsyncStorage
-    await this.initDB(true);
+    await this.initViewModel(true);
     await this.storageManager.deleteDB();
     await this.storageManager.deleteUserAsync();
   }
@@ -159,7 +159,7 @@ class ViewModel {
   }
   static async checkFirstRun() {
     console.log("checkFirstRun");
-    await this.initDB(false);
+    await this.initViewModel(false);
     let firstRun = false;
     let user = null;
     try {
@@ -174,7 +174,8 @@ class ViewModel {
   }
   static async initApp() {
     console.log("initApp");
-    await this.initDB(false);
+    
+    await this.initViewModel(false);
     
     const firstRun = await this.checkFirstRun();
     
