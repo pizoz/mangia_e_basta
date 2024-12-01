@@ -7,34 +7,34 @@ import { useEffect, useState } from "react";
 
 const Home = ({ route }) => {
   const user = route.params.user;
-
+  const [address, setAddress] = useState(null);
   const [menus, setMenus] = useState(null);
+
+  const initHome = async () => {
+
+    try {
+      const menu = await ViewModel.getMenus(route.params.user.sid);
+      setMenus(menu);
+      const address = await ViewModel.getAddress();
+      setAddress(address);
+    } catch (error) {
+      console.error("Errore durante il caricamento dei menu:", error);
+    }
+  }
 
   useEffect(() => {
     console.log(route.params.user);
-    // al caricamento della Homepage, traduco la posizione nella via in cui si trova l'utente
-
-    //ABBIAMO I MENUS
-    
-    ViewModel.getMenus(route.params.user.sid)
-      .then((result) => {
-        console.log("Menus:", result);
-        setMenus(result); // Aggiorna lo stato con i menu ricevuti
-      })
-      .catch((error) => {
-        console.error("Errore durante il caricamento dei menu:", error);
-        setMenus([]); // In caso di errore, considera la lista vuota
-      });
+    initHome();
   }, []);
 
-  if (menus === null) {
+  if (menus === null || address === null) {
     return <Text>Loading...</Text>;
   }
   return (
     <View>
       <Button title="Reset" onPress={() => ViewModel.reset()} />
-
-      <MenusList menus={menus} user ={user}  />
+      <Text>{address.street !=  null  ? address.street : address.formattedAddress }</Text>
+      <MenusList menus={menus} user={user} />
     </View>
   );
 };

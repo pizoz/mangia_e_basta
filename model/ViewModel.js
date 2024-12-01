@@ -1,6 +1,7 @@
 import CommunicationController from "./CommunicationController";
 import StorageManager from "./StorageManager";
 import PositionController from "./PositionController";
+import * as Location from "expo-location";
 class ViewModel {
   
   static storageManager = null;
@@ -192,6 +193,10 @@ class ViewModel {
     let newMenu = await CommunicationController.GetMenu(menu.mid, user.sid, this.positionController.location.coords.latitude, this.positionController.location.coords.longitude);
     menu = {...menu, ...newMenu};
     return menu;
+  }
+  static async getAddress() {
+    const address = await Location.reverseGeocodeAsync({latitude: this.positionController.location.coords.latitude, longitude: this.positionController.location.coords.longitude});
+    return address[0];
   }
 }
 

@@ -1,3 +1,4 @@
+
 App:
     deve contenere firstRun per stabilire se è la prima volta che viene avviata l'App
     nel caso sia cosi: viene restituita la FirstRunPage che mi restituirà la posizione la prima volta
@@ -5,10 +6,8 @@ App:
     Qui dev'essere salvata la posizione se è il primo avvio, altrimenti va calcolata
 
 Landing Page:
-    SOLO AL PRIMO AVVIO
-    
-    Forse meglio di no
-    non fa nulla, ma quando click sul bottone viene mandato a EnablePosition
+    SOLO AL PRIMO AVVIO    
+    non fa nulla, ma quando click sul bottone viene mandato a Allow  Position
 
 Allow Position:
     Nulla di che:
@@ -19,10 +18,24 @@ Allow Position:
 HomePage:
     REQUIRES:
         Un utente -> getUserFromAsync che lo crea la prima volta e lo salva in AsyncStorage, altrimenti lo prende da AsyncStorage
-        La sua Posizione 
+        La sua Posizione
     PRIMA CHE VENGA MOSTRATO QUALUNQUE COSA:
+        aspettiamo la traduzione della posizione in address
+        facciamo la get di tutti i menu e le relative immagini
+    
+    Pagina principale dell'app. Qui si può navigare alle altre schermate:
+        Order
+        ProfilePage
+    Vengono stampati 20 menu più vicini all'utente ognuno dei quali permette la navigazione alla relativa
+    
 DetailMenu:
+    REQUIRES:
+        utente e posizione:
+    
 ProfilePage:
-Confirm Order
+
+OrderPage:
+
+Confirm Order:
 
 --
