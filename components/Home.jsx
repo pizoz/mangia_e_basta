@@ -5,7 +5,6 @@ import MenusList from "./MenusList";
 import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
 
-
 const Home = ({ route }) => {
   const user = route.params.user;
   const [address, setAddress] = useState(null);
@@ -28,7 +27,7 @@ const Home = ({ route }) => {
     initHome();
   }, []);
 
-  if (menus === null || address === null) {
+  if (menus === null || address === null ) {
     return <LoadingScreen />;
   }
   return (

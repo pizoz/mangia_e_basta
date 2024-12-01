@@ -9,6 +9,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Menu from "./components/Menu";
 import LoadingScreen from "./components/LoadingScreen";
 
+
 const stack = createStackNavigator();
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
     
   }, [changed]);
 
+ 
   if (firstRun) {
     return (
       <View style={styles.container}>
