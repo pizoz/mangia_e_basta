@@ -37,7 +37,7 @@ const MenusList = ({ menus = [], user }) => {
       )}
       ListEmptyComponent={<Text style={styles.emptyMessage}>Nessun menu disponibile</Text>}
       showsVerticalScrollIndicator={true}
-      ListFooterComponent={<View style={styles.footerSpace} />} // Aggiungi spazio extra alla fine
+      ListFooterComponent={<View style={styles.footerSpace} />} 
     />
   );
 };
@@ -56,13 +56,13 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   cardContent: {
-    flexDirection: "row", // Disposizione orizzontale
-    alignItems: "center", // Allineamento verticale centrale
-    justifyContent: "space-between", // Spazio tra testo e immagine
+    flexDirection: "row", 
+    alignItems: "center", 
+    justifyContent: "space-between", 
   },
   textContainer: {
-    flex: 1, // Occupa lo spazio rimanente
-    marginRight: 20, // Spazio tra il testo e l'immagine
+    flex: 1, 
+    marginRight: 20, 
     
   },
   menuTitle: {
@@ -85,8 +85,8 @@ const styles = StyleSheet.create({
   menuImage: {
     width: 80,
     height: 80,
-    borderRadius: 10, // Angoli arrotondati per l'immagine
-    backgroundColor: "#f0f0f0", // Colore di sfondo in caso di caricamento lento
+    borderRadius: 10, 
+    backgroundColor: "#f0f0f0", 
   },
   emptyMessage: {
     textAlign: "center",
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   footerSpace: {
-    height: 60, // Aggiunge spazio extra alla fine della lista
+    height: 60, 
   },
 });
 

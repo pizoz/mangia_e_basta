@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { ArrowLeft } from "lucide-react-native";
 import ViewModel from "../model/ViewModel";
+import LoadingScreen from "./LoadingScreen";
 
-// Ottieni le dimensioni dello schermo per il design responsive
+// Get screen dimensions for responsive design
 const { width } = Dimensions.get("window");
 
 const Menu = ({ route }) => {
-  // Ricevi l'oggetto "menu" passato tramite params
+  const navigation = useNavigation();
   const { menu, user } = route.params;
   const [longMenu, setLongMenu] = useState(null);
 
@@ -26,11 +29,21 @@ const Menu = ({ route }) => {
   }, [menu, user]);
 
   if (longMenu === null) {
-    return <Text style={styles.loadingText}>Loading...</Text>;
+    return <LoadingScreen />;
   }
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <ArrowLeft color="#333" size={24} />
+      </TouchableOpacity>
+      
+      </View>
+      
       <Image
         source={{ uri: longMenu.image || "https://via.placeholder.com/400x200" }}
         style={styles.menuImage}
@@ -42,7 +55,7 @@ const Menu = ({ route }) => {
           Prezzo: {longMenu.price ? `${longMenu.price} €` : "N/D"}
         </Text>
         <Text style={styles.deliveryTime}>
-          Tempo di consegna: {longMenu.deliveryTime === null  ? "N//D" : longMenu.deliveryTime}
+          Tempo di consegna: {longMenu.deliveryTime === null ? "N/D" : longMenu.deliveryTime}
         </Text>
       </View>
     </View>
@@ -55,6 +68,15 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#f9f9f9",
   },
+  backButton: {
+    position: 'absolute',
+    top: 25,
+    left: 5,
+    zIndex: 10,
+    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 20,
+  },
   loadingText: {
     textAlign: "center",
     fontSize: 18,
@@ -65,6 +87,7 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 10,
     marginBottom: 16,
+    marginTop: 48, // Add some top margin to accommodate the back button
     resizeMode: "cover",
     borderWidth: 1,
     borderColor: "#ddd",
@@ -99,9 +122,16 @@ const styles = StyleSheet.create({
   },
   deliveryTime: {
     fontSize: 16,
-    color: "#ff7f50", // Colore arancione per il tempo di consegna
+    color: "#ff7f50",
     fontWeight: "600",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
 });
 
 export default Menu;
+

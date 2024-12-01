@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState, } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,12 @@ import {
   Image,
   StyleSheet,
   Dimensions,
-  ImageBackground
+  ImageBackground,
+  ActivityIndicator
 } from "react-native";
 import ViewModel from "../model/ViewModel";
 import { SafeAreaView } from "react-native-safe-area-context";
+import LoadingScreen from "./LoadingScreen";
 const { width, height } = Dimensions.get("window");
 
 const FirstComponent = ({ setChanged, setUser}) => {
@@ -27,14 +29,11 @@ const FirstComponent = ({ setChanged, setUser}) => {
       <Fragment>
         <SafeAreaView style={styles.container}>
           <ImageBackground
-            source={require("../assets/Firstcomponent.png")}
+            source={require("../assets/logo_iniziale_2.jpg")}
             style={styles.background}
+            resizeMode= "contain"
           >
           <View style={styles.overlay}>
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>MANGIA</Text>
-              <Text style={styles.title}>EBBASTA</Text>
-            </View>
             <TouchableOpacity
               style={styles.button}
               onPress={() => setScreen("SecondScreen")}
@@ -68,7 +67,9 @@ const FirstComponent = ({ setChanged, setUser}) => {
     );
   }
 
-  return null;
+  return (
+    <LoadingScreen/>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -101,6 +102,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
+    // make it stay at the bottom
+    position: "absolute",
+    bottom: 40,
     backgroundColor: "#3498db",
     paddingVertical: 15,
     paddingHorizontal: 60,

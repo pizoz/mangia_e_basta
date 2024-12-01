@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Image } from "react-native";
 import ViewModel from "./model/ViewModel";
 import FirstComponent from "./components/FirstComponent";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import Home from "./components/Home";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Menu from "./components/Menu";
+import LoadingScreen from "./components/LoadingScreen";
 
 const stack = createStackNavigator();
 
@@ -39,7 +40,6 @@ export default function App() {
   if (firstRun === false) {
     
     if (user !== null && location !== null) {
-      console.log("Caso falso", location)
       return (
         <NavigationContainer>
           <stack.Navigator initialRouteName="Home">
@@ -52,9 +52,7 @@ export default function App() {
     
   }
   return (
-    <View style={styles.container}>
-      <Text>Loading...</Text>
-    </View>
+    <LoadingScreen/>
   );
 }
 
@@ -64,5 +62,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-  },
+  }
 });

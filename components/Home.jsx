@@ -3,6 +3,7 @@ import { View, Text, Button } from "react-native";
 import ViewModel from "../model/ViewModel";
 import MenusList from "./MenusList";
 import { useEffect, useState } from "react";
+import LoadingScreen from "./LoadingScreen";
 
 
 const Home = ({ route }) => {
@@ -28,12 +29,13 @@ const Home = ({ route }) => {
   }, []);
 
   if (menus === null || address === null) {
-    return <Text>Loading...</Text>;
+    return <LoadingScreen />;
   }
   return (
     <View>
-      <Button title="Reset" onPress={() => ViewModel.reset()} />
       <Text>{address.street !=  null  ? address.street : address.formattedAddress }</Text>
+      <Text>{address.city}</Text>
+      <Button title="Reset" onPress={() => ViewModel.reset()} />
       <MenusList menus={menus} user={user} />
     </View>
   );
