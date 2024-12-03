@@ -46,16 +46,18 @@ class ViewModel {
       console.log(error);
     }
     // Se non lo trovo, chiedo al server di crearlo e lo salvo nell'AsyncStorage
-    // per user qui si intende la coppia uid, sid e non tutte le informazioni dell'utente
+    // 
     if (!user) {
       const newUser = await CommunicationController.createUser();
+      const fullUser = await CommunicationController.getUser(newUser.uid, newUser.sid);
+      const finalUser = {...newUser, ...fullUser};
       try {
-        await this.storageManager.saveUserAsync(newUser.uid, newUser.sid);
+        await this.storageManager.saveUserAsync(JSON.stringify(finalUser));
       } catch (error) {
         console.log(error);
       }
       // lo restituisco
-      return newUser;
+      return JSON.parse(finalUser);
     } else {
       // altrimenti lo restituisco direttamente dall'AsyncStorage
       return user;

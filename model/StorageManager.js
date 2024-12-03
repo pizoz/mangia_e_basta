@@ -77,8 +77,7 @@ export default class StorageManager {
 
   // Async storage
 
-  async saveUserAsync(uid, sid) {
-    let user = { uid: uid, sid: sid };
+  async saveUserAsync(user) {
     await AsyncStorage.setItem("user", JSON.stringify(user));
   }
   

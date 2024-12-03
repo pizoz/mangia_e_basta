@@ -6,14 +6,15 @@ import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
 
 const Home = ({ route }) => {
-  const user = route.params.user;
+  const user = JSON.parse(route.params.user);
   const [address, setAddress] = useState(null);
   const [menus, setMenus] = useState(null);
 
   const initHome = async () => {
 
     try {
-      const menu = await ViewModel.getMenus(route.params.user.sid);
+      console.log(user)
+      const menu = await ViewModel.getMenus(user.sid);
       setMenus(menu);
       const address = await ViewModel.getAddress();
       setAddress(address);

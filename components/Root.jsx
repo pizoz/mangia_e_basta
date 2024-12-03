@@ -16,7 +16,7 @@ function HomeScreenStack({route}) {
     const {user} = route.params;
   return (
     <HomeStack.Navigator screenOptions={{headerShown: false}}>
-      <HomeStack.Screen name="Home" component={Home} initialParams={{user:user}} />
+      <HomeStack.Screen name="Home" component={Home} initialParams={{user}} />
       <HomeStack.Screen name="Menu" component={Menu} />
       <HomeStack.Screen name="ConfirmOrder" component={ConfirmOrder} />
     </HomeStack.Navigator>
