@@ -9,7 +9,7 @@ const Home = ({ route }) => {
   const user = route.params.user;
   const [address, setAddress] = useState(null);
   const [menus, setMenus] = useState(null);
-
+  const [changed, setChanged] = useState(false);
   const initHome = async () => {
 
     try {
@@ -25,7 +25,7 @@ const Home = ({ route }) => {
   useEffect(() => {
     console.log(route.params.user);
     initHome();
-  }, []);
+  }, [changed]);
 
   if (menus === null || address === null ) {
     return <LoadingScreen />;
@@ -35,7 +35,7 @@ const Home = ({ route }) => {
       <Text>{address.street !=  null  ? address.street : address.formattedAddress }</Text>
       <Text>{address.city}</Text>
       <Button title="Reset" onPress={() => ViewModel.reset()} />
-      <MenusList menus={menus} user={user} />
+      <MenusList menus={menus} user={user} setChanged={setChanged}/>
     </View>
   );
 };
