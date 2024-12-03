@@ -51,13 +51,14 @@ class ViewModel {
       const newUser = await CommunicationController.createUser();
       const fullUser = await CommunicationController.getUser(newUser.uid, newUser.sid);
       const finalUser = {...newUser, ...fullUser};
+      
       try {
-        await this.storageManager.saveUserAsync(JSON.stringify(finalUser));
+        await this.storageManager.saveUserAsync(finalUser);
       } catch (error) {
         console.log(error);
       }
       // lo restituisco
-      return JSON.parse(finalUser);
+      return finalUser;
     } else {
       // altrimenti lo restituisco direttamente dall'AsyncStorage
       return user;

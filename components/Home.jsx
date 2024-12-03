@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
 
 const Home = ({ route }) => {
-  const user = JSON.parse(route.params.user);
+  const user = route.params.user;
   const [address, setAddress] = useState(null);
   const [menus, setMenus] = useState(null);
   const [changed, setChanged] = useState(false);
