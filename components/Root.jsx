@@ -31,17 +31,20 @@ const Root = ({user}) => {
           initialParams={{user: user}}
           options={{ popToTopOnBlur: true }}
           listeners={({ navigation }) => ({
-            tabLongPress: () => {
-              ViewModel.getLocation().catch((error) => {
-                console.error("Errore durante il caricamento della posizione:", error);
-              });
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Homepage', params: { user: user } }],
-              });
+            tabLongPress: async () => {
+              try {
+                await ViewModel.getLocation();
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'Homepage', params: { user: user } }],
+                });
+              } catch (error) {
+                console.error("Error during location loading:", error);
+              }
+              
             },
           })}/>
-            <Tab.Screen name="Profile" component={ProfilePage} />
+            <Tab.Screen name="Profile" component={ProfilePage} v/>
             <Tab.Screen name="Order" component={Order}/>
         </Tab.Navigator>
         </NavigationContainer>

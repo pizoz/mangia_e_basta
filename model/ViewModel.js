@@ -139,7 +139,6 @@ class ViewModel {
     const image = await this.getUpdatedImage(menu.mid, sid, menu.imageVersion);
     menu.image = `data:image/png;base64,${image}`;
     //questo menu ha info menu e immagine (no longdesc)
-    console.log(menu.image == null)
     return menu;
   }
   // Resetta il database e l'utente dall'AsyncStorage
