@@ -64,6 +64,8 @@ class ViewModel {
   // Restituisce un menu senza immagine
   static async GetMenu(mid, sid) {
     await this.initViewModel(false);
+    console.log(this.positionController.location.coords.latitude, this.positionController.location.coords.longitude);
+
     try {
       return await CommunicationController.GetMenu(mid, sid, this.positionController.location.coords.latitude, this.positionController.location.coords.longitude);
     } catch (error) {
@@ -197,6 +199,27 @@ class ViewModel {
   static async getAddress() {
     const address = await Location.reverseGeocodeAsync({latitude: this.positionController.location.coords.latitude, longitude: this.positionController.location.coords.longitude});
     return address[0];
+  }
+  static async getLocation() {
+    await this.positionController.getLocationAsync();
+  }
+  static async getDeliveryTime(minutes) {
+    let string = "";
+    if (minutes == 0) {
+      return "Immediata"
+    }
+    if (minutes >= 60*24) {
+      string += `${Math.floor(minutes/(60*24))} giorni `;
+      minutes = minutes % (60*24);
+    }
+    if (minutes >= 60) {
+      string += `${Math.floor(minutes/60)} ore `;
+      minutes = minutes % 60;
+    }
+    if (minutes > 0) {
+      string += `${minutes} minuti`;
+    }
+    return string;
   }
 }
 

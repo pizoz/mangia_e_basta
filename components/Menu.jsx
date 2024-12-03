@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity, Button } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { ArrowLeft } from "lucide-react-native";
 import ViewModel from "../model/ViewModel";
@@ -17,7 +17,7 @@ const Menu = ({ route }) => {
     if (menu && user) {
       console.log("\n User : ", user);
       console.log("\n User.sid: ", user.sid);
-
+      console.log("\n Menu: ", menu);
       ViewModel.getMenuDetail(menu, user)
         .then((result) => {
           setLongMenu(result);
@@ -55,8 +55,9 @@ const Menu = ({ route }) => {
           Prezzo: {longMenu.price ? `${longMenu.price} €` : "N/D"}
         </Text>
         <Text style={styles.deliveryTime}>
-          Tempo di consegna: {longMenu.deliveryTime === null ? "N/D" : longMenu.deliveryTime}
+          Tempo di consegna: {ViewModel.getDeliveryTime(longMenu.deliveryTime)}
         </Text>
+        <Button title={"Ordina"} onPress={() => navigation.navigate("ConfirmOrder", { menu: longMenu, user: user })} />
       </View>
     </View>
   );

@@ -15,7 +15,6 @@ const MenusList = ({ menus = [], user }) => {
       renderItem={({ item }) => (
         <TouchableOpacity style={styles.card} onPress={() => handleMenuDetails(item)}>
           <View style={styles.cardContent}>
-            {/* Testo a sinistra */}
             <View style={styles.textContainer}>
               <Text style={styles.menuTitle}>{item.name}</Text>
               <Text style={styles.menuDescription}>
@@ -25,7 +24,6 @@ const MenusList = ({ menus = [], user }) => {
                 Prezzo: {item.price ? `${item.price} €` : "N/D"}
               </Text>
             </View>
-            {/* Immagine a destra */}
             <Image
               source={{
                 uri: item.image || "https://via.placeholder.com/100",
