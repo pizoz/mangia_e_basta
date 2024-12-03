@@ -1,19 +1,48 @@
-import React from "react";
-import { FlatList, Text, TouchableOpacity, View, StyleSheet, Image } from "react-native";
+import React, { useEffect } from "react";
+import {
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+  Image,
+  RefreshControl,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useState } from "react";
+import ViewModel from "../model/ViewModel";
+import LoadingScreen from "./LoadingScreen";
 
-const MenusList = ({ menus = [], user }) => {
-    const navigation = useNavigation();
+const MenusList = ({ menus = [], user, setChanged }) => {
+  const [refreshing, setRefreshing] = useState(false);
+  const navigation = useNavigation();
+  
+  const handleMenuDetails = (item) => {
+    navigation.navigate("Menu", { menu: item, user: user });
+  };
 
-    const handleMenuDetails = (item) => {
-        navigation.navigate("Menu", { menu: item, user: user });
-    };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await ViewModel.getLocation();
+    setRefreshing(false);
+    setChanged((prev) => !prev);
+  };
+  if (menus === null) {
+    return (
+      <LoadingScreen />
+    )
+  }
   return (
     <FlatList
       data={menus}
       keyExtractor={(item) => item.mid.toString()}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
       renderItem={({ item }) => (
-        <TouchableOpacity style={styles.card} onPress={() => handleMenuDetails(item)}>
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => handleMenuDetails(item)}
+        >
           <View style={styles.cardContent}>
             <View style={styles.textContainer}>
               <Text style={styles.menuTitle}>{item.name}</Text>
@@ -33,9 +62,11 @@ const MenusList = ({ menus = [], user }) => {
           </View>
         </TouchableOpacity>
       )}
-      ListEmptyComponent={<Text style={styles.emptyMessage}>Nessun menu disponibile</Text>}
+      ListEmptyComponent={
+        <Text style={styles.emptyMessage}>Nessun menu disponibile</Text>
+      }
       showsVerticalScrollIndicator={true}
-      ListFooterComponent={<View style={styles.footerSpace} />} 
+      ListFooterComponent={<View style={styles.footerSpace} />}
     />
   );
 };
@@ -54,14 +85,13 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   cardContent: {
-    flexDirection: "row", 
-    alignItems: "center", 
-    justifyContent: "space-between", 
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   textContainer: {
-    flex: 1, 
-    marginRight: 20, 
-    
+    flex: 1,
+    marginRight: 20,
   },
   menuTitle: {
     fontSize: 18,
@@ -73,7 +103,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginBottom: 8,
-    
   },
   menuPrice: {
     fontSize: 16,
@@ -83,8 +112,8 @@ const styles = StyleSheet.create({
   menuImage: {
     width: 80,
     height: 80,
-    borderRadius: 10, 
-    backgroundColor: "#f0f0f0", 
+    borderRadius: 10,
+    backgroundColor: "#f0f0f0",
   },
   emptyMessage: {
     textAlign: "center",
@@ -93,7 +122,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   footerSpace: {
-    height: 60, 
+    height: 60,
   },
 });
 
