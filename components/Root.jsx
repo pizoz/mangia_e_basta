@@ -36,7 +36,7 @@ const Root = ({ user }) => {
           options={{ popToTopOnBlur: true }}
         />
 
-        <Tab.Screen name="Profile" component={ProfilePage}/>
+        <Tab.Screen name="Profile" component={ProfilePage} initialParams={{user:user}}/>
         <Tab.Screen name="Order" component={Order} />
       </Tab.Navigator>
     </NavigationContainer>
