@@ -6,6 +6,7 @@ class ViewModel {
   
   static storageManager = null;
   static positionController = null;
+  static lastMenu = null;
   // Inizializza StorageManager e PositionController, nel caso in cui ci sia bisogno di aprire il database, lo apre
   static async initViewModel(db) {
     // il valore db indica un booleano: true se si vuole aprire il database, false altrimenti
@@ -128,13 +129,14 @@ class ViewModel {
   // Restituisce il menu con immagine e longDesc, pronto per essere visualizzato in MenuDetail
   static async getMenuDetail(menu, sid) {
     await this.initViewModel(true);
-
+    
     const newmenu = await this.GetMenu(menu.mid, sid);
     if (!newmenu) {
       return null;
     }
     menu = {...menu, ...newmenu}
     //restituisce menu, con immagine e longDesc
+    this.lastMenu = menu;
     return menu;
   }
   // Restituisce il menu con l'immagine aggiornata, pronto per essere visualizzato in HomePage
@@ -222,6 +224,18 @@ class ViewModel {
       string += `${minutes} minuti`;
     }
     return string;
+  }
+  static isValidUser(user) {
+    if (!user) {
+      return false;
+    }
+    if (!user.uid || !user.sid || !user.firstName || !user.lastName || !user.cardFullName || !user.cardNumber || !user.cardExpireMonth || !user.cardExpireYear || !user.cardCVV) {
+      return false;
+    }
+    return true;
+  }
+  static getLastMenu() {
+    return this.lastMenu;
   }
 }
 

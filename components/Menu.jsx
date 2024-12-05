@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity, Button } from "react-native";
+import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity, Button, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { ArrowLeft } from "lucide-react-native";
 import ViewModel from "../model/ViewModel";
 import LoadingScreen from "./LoadingScreen";
+import { set } from "react-hook-form";
 
 // Get screen dimensions for responsive design
 const { width } = Dimensions.get("window");
 
 const Menu = ({ route }) => {
   const navigation = useNavigation();
-  const { menu, user } = route.params;
+  const { menu, user} = route.params;
   const [longMenu, setLongMenu] = useState(null);
 
   useEffect(() => {
@@ -18,6 +19,7 @@ const Menu = ({ route }) => {
       console.log("\n User : ", user);
       console.log("\n User.sid: ", user.sid);
       console.log("\n Menu: ", menu);
+      ViewModel.lastMenu = menu;
       ViewModel.getMenuDetail(menu, user)
         .then((result) => {
           setLongMenu(result);
@@ -27,6 +29,25 @@ const Menu = ({ route }) => {
         });
     }
   }, [menu, user]);
+
+  const onClickOnButton = () => {
+    if (!ViewModel.isValidUser(user)) {
+      
+      Alert.alert("Profilo non completo!", "Completa il tuo profilo per poter ordinare e gustarti questo menu.", [
+        {
+          text: "Completa il profilo",
+          onPress: () => navigation.navigate("Profile", { user: user, screen: "FormOrder" }),
+          isPreferred: true,
+        }
+        
+      ],
+      { cancelable: true });
+    }
+    else {
+      navigation.navigate("ConfirmOrder");
+    }
+  };
+
 
   if (longMenu === null) {
     return <LoadingScreen />;
@@ -57,7 +78,7 @@ const Menu = ({ route }) => {
         <Text style={styles.deliveryTime}>
           Tempo di consegna: {ViewModel.getDeliveryTime(longMenu.deliveryTime)}
         </Text>
-        <Button title={"Ordina"} onPress={() => navigation.navigate("ConfirmOrder", { menu: longMenu, user: user })} />
+        <Button title={"Ordina"} onPress={onClickOnButton} />
       </View>
     </View>
   );

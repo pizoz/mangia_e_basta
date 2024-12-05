@@ -1,45 +1,42 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Button } from 'react-native';
+import InfoProfile from './InfoProfile';
+import LoadingScreen from './LoadingScreen';
+import { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+const ProfilePage = ({ navigation, route}) => {
+  const { user, screen } = route.params;
+  const [stateScreen, setStateScreen] = useState(screen);
+  
+  const onClickOnButton = (screen) => {
+    if (screen === 'Form') {
+      setStateScreen('Info');
+    } else if (screen === 'FormOrder') {
+      navigation.navigate('Home', {screen: 'ConfirmOrder'});
+    }
+  };  
 
-const ProfilePage = ({ route }) => {
-  const { user } = route.params;
-
+  if (stateScreen === 'Info') {
+    return (
+      <InfoProfile user={user} setStateScreen={setStateScreen}/>
+    );
+  }
+  if (stateScreen == 'Form' || stateScreen == 'FormOrder') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Profile</Text>
+        </View>
+        <Text>Form</Text>
+        <Button title="Save Profile" onPress={() => onClickOnButton(screen)} />
+      </View>
+    );
+  }
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.decorativeHeader}>
-        <Text style={styles.decorativeText}>👤</Text>
-      </View>
-      
-      <View style={styles.infoContainer}>
-        <Text style={styles.sectionTitle}>Personal Information</Text>
-        <InfoItem label="First Name" value={user.firstName || 'Not provided'} />
-        <InfoItem label="Last Name" value={user.lastName || 'Not provided'} />
-      </View>
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Payment Information</Text>
-        <InfoItem label="Card Number" value={user.cardNumber || 'Not provided'} />
-        <InfoItem label="Card Holder" value={user.cardFullName || 'Not provided'} />
-        <InfoItem label="Expiration" value={
-          user.cardExpireMonth && user.cardExpireYear 
-            ? `${user.cardExpireMonth}/${user.cardExpireYear}`
-            : 'Not provided'
-        } />
-      </View>
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Order Information</Text>
-        <InfoItem label="Last Order ID" value={user.lastOid || 'No orders yet'} />
-        <InfoItem label="Order Status" value={user.orderStatus || 'N/A'} />
-      </View>
-    </ScrollView>
-  );
+    <LoadingScreen />
+  )
 };
 
-const InfoItem = ({ label, value }) => (
-  <View style={styles.infoItem}>
-    <Text style={styles.label}>{label}:</Text>
-    <Text style={styles.value}>{value}</Text>
-  </View>
-);
 
 const styles = StyleSheet.create({
   container: {
