@@ -4,6 +4,7 @@ import ViewModel from "../model/ViewModel";
 import MenusList from "./MenusList";
 import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
+import { StyleSheet } from "react-native";
 
 const Home = ({ route }) => {
   const user = route.params.user;
@@ -18,6 +19,7 @@ const Home = ({ route }) => {
       setMenus(menu);
       const address = await ViewModel.getAddress();
       setAddress(address);
+      console.log(address);
     } catch (error) {
       console.error("Errore durante il caricamento dei menu:", error);
     }
@@ -33,8 +35,10 @@ const Home = ({ route }) => {
   }
   return (
     <View>
-      <Text>{address.street !=  null  ? address.street : address.formattedAddress }</Text>
-      <Text>{address.city}</Text>
+      <View style={styles.address}>
+      <Text >{address.street !=  null  ? address.street : address.formattedAddress }</Text>
+      <Text >{address.city}</Text>
+      </View>
       <Button title="Reset" onPress={() => ViewModel.reset()} />
       <MenusList menus={menus} user={user} setChanged={setChanged}/>
     </View>
@@ -42,3 +46,20 @@ const Home = ({ route }) => {
 };
 
 export default Home;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  address: {
+    fontSize: 20,
+    color: "#000000",
+    paddingTop: 30,
+    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
+

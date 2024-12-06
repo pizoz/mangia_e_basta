@@ -33,17 +33,17 @@ const Menu = ({ route }) => {
   const onClickOnButton = () => {
     if (!ViewModel.isValidUser(user)) {
       
-      Alert.alert("Profilo non completo!", "Completa il tuo profilo per poter ordinare e gustarti questo menu.", [
-        {
-          text: "Completa il profilo",
-          onPress: () => navigation.navigate('Profile', { screen: 'Form', params: { user: user, before: 'CompletaProfilo' }}),
-          isPreferred: true,
-        }
+      // Alert.alert("Profilo non completo!", "Completa il tuo profilo per poter ordinare e gustarti questo menu.", [
+      //   {
+      //     text: "Completa il profilo",
+      //     onPress: () => navigation.navigate('Profile', { screen: 'Form', params: { user: user, before: 'CompletaProfilo' }}),
+      //     isPreferred: true,
+      //   }
         
-      ],
+      // ],
       
-      { cancelable: true });
-      
+      // { cancelable: true });
+      navigation.navigate('Profile', { screen: 'Form', params: { user: user, before: 'CompletaProfilo' }});
     }
     else {
       navigation.navigate("ConfirmOrder");
