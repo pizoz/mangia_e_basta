@@ -36,17 +36,21 @@ const Menu = ({ route }) => {
       Alert.alert("Profilo non completo!", "Completa il tuo profilo per poter ordinare e gustarti questo menu.", [
         {
           text: "Completa il profilo",
-          onPress: () => navigation.navigate("Profile", { user: user, screen: "FormOrder" }),
+          onPress: () => navigation.navigate('Profile', { screen: 'Form', params: { user: user, before: 'CompletaProfilo' }}),
           isPreferred: true,
         }
         
       ],
+      
       { cancelable: true });
+      
     }
     else {
       navigation.navigate("ConfirmOrder");
     }
+    
   };
+  
 
 
   if (longMenu === null) {

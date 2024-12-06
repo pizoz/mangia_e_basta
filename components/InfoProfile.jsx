@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { View, Text, StyleSheet, ScrollView, Button } from 'react-native';
 
-const InfoProfile = ({ user, setStateScreen }) => {
+const InfoProfile = ({user}) => {
+  const navigation = useNavigation();
 
   return (
     <ScrollView style={styles.container}>
@@ -29,7 +31,7 @@ const InfoProfile = ({ user, setStateScreen }) => {
         <InfoItem label="Last Order ID" value={user.lastOid || 'No orders yet'} />
         <InfoItem label="Order Status" value={user.orderStatus || 'N/A'} />
       </View>
-      <Button title="Edit Profile" onPress={() => setStateScreen('Form')} />
+      <Button title="Edit Profile" onPress={() => navigation.navigate("Form", { user: user,  before: "ProfilePage" })} />
     </ScrollView>
   );
 };
