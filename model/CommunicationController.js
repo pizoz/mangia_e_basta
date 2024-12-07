@@ -80,6 +80,13 @@ export default class CommunicationController {
       console.log("Richiesta GET per ottenere tanti menu");
       return await this.genericRequest(endpoint, verb, queryParams, {});
     }
+    static async createOrder(mid, sid, lat, lng) {
+      const endpoint = "menu/" + mid + "/buy";
+      const verb = "POST";
+      const bodyParams = { sid: sid, deliveryLocation: { lat: lat, lng: lng } };
+      console.log("Richiesta POST per creare ordine");
+      return await this.genericRequest(endpoint, verb, {}, bodyParams);
+    }
   
   }
   

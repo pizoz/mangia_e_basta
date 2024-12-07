@@ -4,11 +4,38 @@ import ViewModel from '../model/ViewModel';
 
 const ConfirmOrder = ({navigation}) => {
     const lastMenu = ViewModel.getLastMenu();
+    const user = ViewModel.user;
+    const locationCoords = ViewModel.getLocationCoords();
+
+    //console.log("Last Menu: ", lastMenu);
+    //console.log("User: ", user);
+    //console.log("Location: ", locationCoords);
+
+    const handleConfirmOrder = async() => {
+        //ho fatto try perchè confirm oder era async non so se serve eheh
+        // console.log("Confirming order...");
+        // console.log("User: ", user.sid);
+        // console.log("Last Menu: ", lastMenu.mid);
+        // console.log("Location: ", locationCoords);
+
+        try {
+            await ViewModel.confirmOrder(lastMenu, user,  locationCoords).then(() => {
+                navigation.navigate("Order");
+            }).catch((error) => {
+                console.error("Error during order 1 confirmation: ", error);
+            });
+            
+            
+        } catch (error) {
+            console.error("Error during order confirmation: ", error);
+        }
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Confirm Order</Text>
             <Text style={styles.text}>Menu: {lastMenu.name}</Text>
-            <Button title="Confirm Order" onPress={() => navigation.navigate("Order")}/>
+            <Button title="Confirm Order" onPress={() => handleConfirmOrder()}/>
         </View>
     )
 }

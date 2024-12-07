@@ -8,6 +8,7 @@ class ViewModel {
   static positionController = null;
   static lastMenu = null;
   static user = null;
+  static lastOid = null;
   // Inizializza StorageManager e PositionController, nel caso in cui ci sia bisogno di aprire il database, lo apre
   static async initViewModel(db) {
     // il valore db indica un booleano: true se si vuole aprire il database, false altrimenti
@@ -241,6 +242,24 @@ class ViewModel {
   static getLastMenu() {
     return this.lastMenu;
   }
+  //restituisce coordinate di location del positionController con latitudine e longitudine
+  static getLocationCoords() {
+    return this.positionController.location.coords;
+  }
+
+  //conferma l'ordine (quando il profilo è già completo) e lo invia al server 
+  static async confirmOrder(menu, user, coords) {
+    CommunicationController.createOrder(menu.mid, user.sid, coords.latitude, coords.longitude).then ((response) => {
+      this.lastOid = response.oid;
+      console.log("Ordine effettuato");
+      console.log("LastOid: ", this.lastOid);
+    }).catch((error) => {
+      console.log(error);
+    });
+    
+    
+  }
+
 }
 
 export default ViewModel;
