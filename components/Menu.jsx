@@ -11,14 +11,13 @@ const { width } = Dimensions.get("window");
 
 const Menu = ({ route }) => {
   const navigation = useNavigation();
-  const { menu, user} = route.params;
+  const { menu} = route.params;
   const [longMenu, setLongMenu] = useState(null);
 
   useEffect(() => {
-    if (menu && user) {
-      console.log("\n User : ", user);
-      console.log("\n User.sid: ", user.sid);
+    if (menu) {
       console.log("\n Menu: ", menu);
+      const user = ViewModel.user;
       ViewModel.lastMenu = menu;
       ViewModel.getMenuDetail(menu, user)
         .then((result) => {
@@ -28,22 +27,22 @@ const Menu = ({ route }) => {
           console.error("Errore durante il caricamento del menu:", error);
         });
     }
-  }, [menu, user]);
+  }, [menu]);
 
   const onClickOnButton = () => {
+    const user = ViewModel.user;
+    console.log("Side: ", user.sid);
     if (!ViewModel.isValidUser(user)) {
-      
-      // Alert.alert("Profilo non completo!", "Completa il tuo profilo per poter ordinare e gustarti questo menu.", [
-      //   {
-      //     text: "Completa il profilo",
-      //     onPress: () => navigation.navigate('Profile', { screen: 'Form', params: { user: user, before: 'CompletaProfilo' }}),
-      //     isPreferred: true,
-      //   }
+      Alert.alert("Profilo non completo!", "Completa il tuo profilo per poter ordinare e gustarti questo menu.", [
+        {
+          text: "Completa il profilo",
+          onPress: () => navigation.navigate('Profile', { screen: 'Form', params: { user: user, before: 'CompletaProfilo' }}),
+          isPreferred: true,
+        }
         
-      // ],
+      ],
       
-      // { cancelable: true });
-      navigation.navigate('Profile', { screen: 'Form', params: { user: user, before: 'CompletaProfilo' }});
+      { cancelable: true });
     }
     else {
       navigation.navigate("ConfirmOrder");
@@ -53,39 +52,41 @@ const Menu = ({ route }) => {
   
 
 
-  if (longMenu === null) {
-    return <LoadingScreen />;
+  
+  
+  if (longMenu !== null) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <ArrowLeft color="#333" size={24} />
+        </TouchableOpacity>
+        
+        </View>
+        
+        <Image
+          source={{ uri: longMenu.image || "https://via.placeholder.com/400x200" }}
+          style={styles.menuImage}
+        />
+        <Text style={styles.title}>{longMenu.name}</Text>
+        <Text style={styles.description}>{longMenu.longDescription}</Text>
+        <View style={styles.detailsContainer}>
+          <Text style={styles.price}>
+            Prezzo: {longMenu.price ? `${longMenu.price} €` : "N/D"}
+          </Text>
+          <Text style={styles.deliveryTime}>
+            Tempo di consegna: {ViewModel.getDeliveryTime(longMenu.deliveryTime)}
+          </Text>
+          <Button title={"Ordina"} onPress={onClickOnButton} />
+        </View>
+      </View>
+    );
   }
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <ArrowLeft color="#333" size={24} />
-      </TouchableOpacity>
-      
-      </View>
-      
-      <Image
-        source={{ uri: longMenu.image || "https://via.placeholder.com/400x200" }}
-        style={styles.menuImage}
-      />
-      <Text style={styles.title}>{longMenu.name}</Text>
-      <Text style={styles.description}>{longMenu.longDescription}</Text>
-      <View style={styles.detailsContainer}>
-        <Text style={styles.price}>
-          Prezzo: {longMenu.price ? `${longMenu.price} €` : "N/D"}
-        </Text>
-        <Text style={styles.deliveryTime}>
-          Tempo di consegna: {ViewModel.getDeliveryTime(longMenu.deliveryTime)}
-        </Text>
-        <Button title={"Ordina"} onPress={onClickOnButton} />
-      </View>
-    </View>
-  );
+  return <LoadingScreen />;
+  
 };
 
 const styles = StyleSheet.create({

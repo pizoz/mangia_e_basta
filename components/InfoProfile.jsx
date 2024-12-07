@@ -7,7 +7,6 @@ import LoadingScreen from "./LoadingScreen";
 import { useCallback } from "react";
 const InfoProfile = () => {
   const [user, setUser] = useState(null);
-  const [newUser, setNewUser] = useState(null)
   const navigation = useNavigation();
   useFocusEffect(
     useCallback(() => {
@@ -22,7 +21,7 @@ const InfoProfile = () => {
       };
 
       fetchUser();
-    }, []) // Empty dependency array means this effect runs on every focus
+    }, [])
   );
 
   if(user===null){

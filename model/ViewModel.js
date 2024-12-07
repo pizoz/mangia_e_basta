@@ -7,6 +7,7 @@ class ViewModel {
   static storageManager = null;
   static positionController = null;
   static lastMenu = null;
+  static user = null;
   // Inizializza StorageManager e PositionController, nel caso in cui ci sia bisogno di aprire il database, lo apre
   static async initViewModel(db) {
     // il valore db indica un booleano: true se si vuole aprire il database, false altrimenti
@@ -17,6 +18,7 @@ class ViewModel {
     if (!this.positionController) {
       this.positionController = new PositionController();
     }
+    
     if (db) {
       await this.storageManager.openDB();
     }
@@ -191,6 +193,7 @@ class ViewModel {
     } else {
       // altrimenti restituisce false,  l'utente trovato nell'AsyncStorage e la posizione attuale
       const user = await this.getUserFromAsyncStorage();
+      this.user = user;
       await this.positionController.getLocationAsync();
       return {firstRun: firstRun,  user: user, location: this.positionController.location};
     }
@@ -229,7 +232,8 @@ class ViewModel {
     if (!user) {
       return false;
     }
-    if (!user.uid || !user.sid || !user.firstName || !user.lastName || !user.cardFullName || !user.cardNumber || !user.cardExpireMonth || !user.cardExpireYear || !user.cardCVV) {
+    if (!user.uid || !user.sid || !user.firstName || !user.lastName || !user.cardFullName || !user.cardNumber || 
+        user.cardExpireMonth === null || user.cardExpireYear === null || !user.cardCVV) {
       return false;
     }
     return true;
