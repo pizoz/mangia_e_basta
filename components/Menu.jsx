@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity, Button, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Dimensions,
+  TouchableOpacity,
+  Button,
+  Alert,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { ArrowLeft } from "lucide-react-native";
 import ViewModel from "../model/ViewModel";
@@ -11,7 +20,7 @@ const { width } = Dimensions.get("window");
 
 const Menu = ({ route }) => {
   const navigation = useNavigation();
-  const { menu} = route.params;
+  const { menu } = route.params;
   const [longMenu, setLongMenu] = useState(null);
 
   useEffect(() => {
@@ -33,42 +42,44 @@ const Menu = ({ route }) => {
     const user = ViewModel.user;
     console.log("Side: ", user.sid);
     if (!ViewModel.isValidUser(user)) {
-      Alert.alert("Profilo non completo!", "Completa il tuo profilo per poter ordinare e gustarti questo menu.", [
-        {
-          text: "Completa il profilo",
-          onPress: () => navigation.navigate('Profile', { screen: 'Form', params: { user: user, before: 'CompletaProfilo' }}),
-          isPreferred: true,
-        }
-        
-      ],
-      
-      { cancelable: true });
-    }
-    else {
+      Alert.alert(
+        "Profilo non completo!",
+        "Completa il tuo profilo per poter ordinare e gustarti questo menu.",
+        [
+          {
+            text: "Completa il profilo",
+            onPress: () =>
+              navigation.navigate("Profile", {
+                screen: "Form",
+                params: { user: user, before: "CompletaProfilo" },
+              }),
+            isPreferred: true,
+          },
+        ],
+
+        { cancelable: true }
+      );
+    } else {
       navigation.navigate("ConfirmOrder");
     }
-    
   };
-  
 
-
-  
-  
   if (longMenu !== null) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <ArrowLeft color="#333" size={24} />
-        </TouchableOpacity>
-        
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <ArrowLeft color="#333" size={24} />
+          </TouchableOpacity>
         </View>
-        
+
         <Image
-          source={{ uri: longMenu.image || "https://via.placeholder.com/400x200" }}
+          source={{
+            uri: longMenu.image || "https://via.placeholder.com/400x200",
+          }}
           style={styles.menuImage}
         />
         <Text style={styles.title}>{longMenu.name}</Text>
@@ -78,7 +89,8 @@ const Menu = ({ route }) => {
             Prezzo: {longMenu.price ? `${longMenu.price} €` : "N/D"}
           </Text>
           <Text style={styles.deliveryTime}>
-            Tempo di consegna: {ViewModel.getDeliveryTime(longMenu.deliveryTime)}
+            Tempo di consegna:{" "}
+            {ViewModel.getDeliveryTime(longMenu.deliveryTime)}
           </Text>
           <Button title={"Ordina"} onPress={onClickOnButton} />
         </View>
@@ -86,7 +98,6 @@ const Menu = ({ route }) => {
     );
   }
   return <LoadingScreen />;
-  
 };
 
 const styles = StyleSheet.create({
@@ -96,12 +107,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 25,
     left: 5,
     zIndex: 10,
     padding: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
     borderRadius: 20,
   },
   loadingText: {
@@ -161,4 +172,3 @@ const styles = StyleSheet.create({
 });
 
 export default Menu;
-

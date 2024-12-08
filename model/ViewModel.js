@@ -254,10 +254,21 @@ class ViewModel {
       let order = await CommunicationController.createOrder(menu.mid, user.sid, coords.latitude, coords.longitude);
       this.lastOid = order.oid;
       this.user = {...user, lastOid: order.oid, orderStatus: order.status};
+      //salva user nello storage con l'oid e lo status dell'ordine
       await this.storageManager.saveUserAsync(this.user);
-
+      order = {...order, menuName: menu.name};
+      //salva l'ultimo ordine effettuato nello storage
+      await this.storageManager.saveLastOrderAsync(order);
+      console.log("ORDINE EFFETTUATO: ",order);
+      return order;
     } catch (error) {
       console.log(error);
+      if (error.message === "Error message from the server. HTTP status: 409 {\"message\":\"User already has an active order\"}") {
+        const customError = new Error("Hai già un ordine attivo");
+        customError.status = 409; // Imposta il codice di stato personalizzato
+        throw customError; // Lancia l'errore personalizzato
+    }
+      throw error;
     }
     
     

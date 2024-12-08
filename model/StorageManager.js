@@ -95,4 +95,17 @@ export default class StorageManager {
     console.log("deleteUserAsync");
     await AsyncStorage.removeItem("user");
   }
+  async saveLastOrderAsync(order) {
+    await AsyncStorage.setItem("lastOrder", JSON.stringify(order));
+  }
+  async getLastOrderAsync() {
+    console.log("getLastOrderAsync");
+    let order = null;
+    try {
+      order = await AsyncStorage.getItem("lastOrder");
+    } catch (error) {
+      console.log(error);
+    }
+    return JSON.parse(order);
+  }
 }
