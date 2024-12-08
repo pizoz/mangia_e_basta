@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
 import ViewModel from '../model/ViewModel';
 
-const ConfirmOrder = ({navigation}) => {
+const ConfirmOrder = ({ navigation }) => {
     const lastMenu = ViewModel.getLastMenu();
     const user = ViewModel.user;
     const locationCoords = ViewModel.getLocationCoords();
@@ -11,7 +11,7 @@ const ConfirmOrder = ({navigation}) => {
     //console.log("User: ", user);
     //console.log("Location: ", locationCoords);
 
-    const handleConfirmOrder = async() => {
+    const handleConfirmOrder = async () => {
         //ho fatto try perchè confirm oder era async non so se serve eheh
         // console.log("Confirming order...");
         // console.log("User: ", user.sid);
@@ -19,15 +19,16 @@ const ConfirmOrder = ({navigation}) => {
         // console.log("Location: ", locationCoords);
 
         try {
-            await ViewModel.confirmOrder(lastMenu, user,  locationCoords).then(() => {
-                navigation.navigate("Order");
-            }).catch((error) => {
-                console.error("Error during order 1 confirmation: ", error);
-            });
-            
-            
+
+            await ViewModel.confirmOrder(lastMenu, user, locationCoords);
+
         } catch (error) {
             console.error("Error during order confirmation: ", error);
+        } finally {
+
+            navigation.navigate("Order");
+
+            console.log("Order confirmed");
         }
     }
 
@@ -35,7 +36,7 @@ const ConfirmOrder = ({navigation}) => {
         <View style={styles.container}>
             <Text style={styles.text}>Confirm Order</Text>
             <Text style={styles.text}>Menu: {lastMenu.name}</Text>
-            <Button title="Confirm Order" onPress={() => handleConfirmOrder()}/>
+            <Button title="Confirm Order" onPress={() => handleConfirmOrder()} />
         </View>
     )
 }

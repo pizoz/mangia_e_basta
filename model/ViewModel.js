@@ -249,13 +249,15 @@ class ViewModel {
 
   //conferma l'ordine (quando il profilo è già completo) e lo invia al server 
   static async confirmOrder(menu, user, coords) {
-    CommunicationController.createOrder(menu.mid, user.sid, coords.latitude, coords.longitude).then ((response) => {
-      this.lastOid = response.oid;
-      console.log("Ordine effettuato");
-      console.log("LastOid: ", this.lastOid);
-    }).catch((error) => {
+    
+    try {
+      let order = await CommunicationController.createOrder(menu.mid, user.sid, coords.latitude, coords.longitude);
+      this.lastOid = order.oid;
+      this.user = {...user, lastOid: order.oid, orderStatus: order.status};
+
+    } catch (error) {
       console.log(error);
-    });
+    }
     
     
   }
