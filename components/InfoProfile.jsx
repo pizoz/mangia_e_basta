@@ -5,26 +5,28 @@ import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
 import ViewModel from "../model/ViewModel";
 import LoadingScreen from "./LoadingScreen";
 import { useCallback } from "react";
+import { useIsFocused } from "@react-navigation/native";
+import { useEffect } from "react";
 const InfoProfile = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(ViewModel.user);
   const navigation = useNavigation();
-  useFocusEffect(
-    useCallback(() => {
-      const fetchUser = async () => {
-        try {
-          const res = await ViewModel.storageManager.getUserAsync();
-          console.log(res);
-          setUser(res);
-        } catch (error) {
-          console.error("Error fetching user:", error);
-        }
-      };
+  const isFocused = useIsFocused();
 
-      fetchUser();
-    }, [])
-  );
+  const fetchUser = async () => {
+    try {
+      const res = await ViewModel.storageManager.getUserAsync();
+      console.log(res);
+      setUser(res);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
 
-  if(user===null){
+  useEffect(() => {
+    fetchUser();
+  }, [isFocused]);
+
+  if (user === null) {
     return <LoadingScreen />;
   }
   return (

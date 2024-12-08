@@ -254,6 +254,7 @@ class ViewModel {
       let order = await CommunicationController.createOrder(menu.mid, user.sid, coords.latitude, coords.longitude);
       this.lastOid = order.oid;
       this.user = {...user, lastOid: order.oid, orderStatus: order.status};
+      await this.storageManager.saveUserAsync(this.user);
 
     } catch (error) {
       console.log(error);
