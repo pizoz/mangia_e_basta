@@ -10,65 +10,56 @@ import { set } from "react-hook-form";
 import LoadingScreen from "./LoadingScreen";
 
 const Order = () => {
-  const [lastOid, setLastOid] = useState(ViewModel.lastOid);
-  const  isFocused = useIsFocused();
-  //const [user, setUser] = useState(ViewModel.user);
-  const [lastOrder, setLastOrder] = useState(null);
-  
-  // const fetchUser = async () => {
-  //   try {
-  //     const res = await ViewModel.storageManager.getUserAsync();
-  //     console.log(res);
-  //     setUser(res);
-  //     setLastOid(res.lastOid);
-  //   } catch (error) {
-  //     console.error("Error fetching user:", error);
-  //   }
-  // };
+  const isFocused = useIsFocused();
+  const [user, setUser] = useState(ViewModel.user);
+  const [order, setOrder] = useState(null);
 
-  const fetchLastOrder = async () => {
+  const fetchData = async () => {
     try {
-      const res = await ViewModel.storageManager.getLastOrderAsync();
+      const res = await ViewModel.storageManager.getUserAsync();
       console.log(res);
-      setLastOrder(res);
+      setUser(res);
 
+      const res2 = await ViewModel.getOrder(user.lastOid, user.sid);
+      console.log(res2);
+      setOrder(res2);
     } catch (error) {
-      console.error("Error fetching last order:", error);
+      console.error("Error fetching data:", error);
     }
   };
 
   useEffect(() => {
-    //fetchUser();
-    fetchLastOrder();
+    fetchData();
   }, [isFocused]);
 
   // useFocusEffect(
   //   useCallback(() => {
   //     console.log("Order focused");
   //     setLastOid(ViewModel.lastOid);
-  //   },[isFocused]) 
+  //   },[isFocused])
   // );
 
-  if (!lastOrder) {
-    return <LoadingScreen />;
-  }
+  if (order && user) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.headerText}>Dettagli Ordine</Text>
+        <View style={styles.card}>
+          <Text style={styles.label}>Menu:</Text>
+          <Text style={styles.value}>{user.orderName || "N/A"}</Text>
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.headerText}>Dettagli Ordine</Text>
-      <View style={styles.card}>
-        <Text style={styles.label}>Menu:</Text>
-        <Text style={styles.value}>{lastOrder.menuName || "N/A"}</Text>
+          <Text style={styles.label}>Status:</Text>
+          <Text style={styles.value}>{user.orderStatus || "N/A"}</Text>
 
-        <Text style={styles.label}>Status:</Text>
-        <Text style={styles.value}>{lastOrder.status || "N/A"}</Text>
+          <Text style={styles.label}>Consegna:</Text>
+          <Text style={styles.value}>
+            {order.expectedDeliveryTimestamp || "N/A"}
+          </Text>
 
-        <Text style={styles.label}>Tempo di consegna stimato:</Text>
-        <Text style={styles.value}>{lastOrder.expectedDeliveryTimestamp || "N/A"}</Text>
-
+        </View>
       </View>
-    </View>
-  );
+    );
+  }
+  return <LoadingScreen />;
 };
 
 export default Order;

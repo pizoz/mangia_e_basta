@@ -87,6 +87,13 @@ export default class CommunicationController {
       console.log("Richiesta POST per creare ordine");
       return await this.genericRequest(endpoint, verb, {}, bodyParams);
     }
+    static async getOrder(oid, sid) {
+      const endpoint = "order/" + oid;
+      const verb = "GET";
+      const queryParams = { sid: sid };
+      console.log("Richiesta GET per ottenere ordine");
+      return await this.genericRequest(endpoint, verb, queryParams, {});
+    }
   
   }
   

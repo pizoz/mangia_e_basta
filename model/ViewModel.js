@@ -3,7 +3,6 @@ import StorageManager from "./StorageManager";
 import PositionController from "./PositionController";
 import * as Location from "expo-location";
 class ViewModel {
-  
   static storageManager = null;
   static positionController = null;
   static lastMenu = null;
@@ -19,14 +18,13 @@ class ViewModel {
     if (!this.positionController) {
       this.positionController = new PositionController();
     }
-    
+
     if (db) {
       await this.storageManager.openDB();
     }
   }
   // Restituisce l'utente dal database, se non lo trova, lo crea, lo salva nel database e lo restituisce
   static async getUserFromDB() {
-
     await this.initViewModel(true);
     const user = await this.storageManager.getUserFromDB();
     if (!user) {
@@ -50,12 +48,15 @@ class ViewModel {
       console.log(error);
     }
     // Se non lo trovo, chiedo al server di crearlo e lo salvo nell'AsyncStorage
-    // 
+    //
     if (!user) {
       const newUser = await CommunicationController.createUser();
-      const fullUser = await CommunicationController.getUser(newUser.uid, newUser.sid);
-      const finalUser = {...newUser, ...fullUser};
-      
+      const fullUser = await CommunicationController.getUser(
+        newUser.uid,
+        newUser.sid
+      );
+      const finalUser = { ...newUser, ...fullUser };
+
       try {
         await this.storageManager.saveUserAsync(finalUser);
       } catch (error) {
@@ -71,10 +72,18 @@ class ViewModel {
   // Restituisce un menu senza immagine
   static async GetMenu(mid, sid) {
     await this.initViewModel(false);
-    console.log(this.positionController.location.coords.latitude, this.positionController.location.coords.longitude);
+    console.log(
+      this.positionController.location.coords.latitude,
+      this.positionController.location.coords.longitude
+    );
 
     try {
-      return await CommunicationController.GetMenu(mid, sid, this.positionController.location.coords.latitude, this.positionController.location.coords.longitude);
+      return await CommunicationController.GetMenu(
+        mid,
+        sid,
+        this.positionController.location.coords.latitude,
+        this.positionController.location.coords.longitude
+      );
     } catch (error) {
       console.log(error);
     }
@@ -132,18 +141,18 @@ class ViewModel {
   // Restituisce il menu con immagine e longDesc, pronto per essere visualizzato in MenuDetail
   static async getMenuDetail(menu, sid) {
     await this.initViewModel(true);
-    
+
     const newmenu = await this.GetMenu(menu.mid, sid);
     if (!newmenu) {
       return null;
     }
-    menu = {...menu, ...newmenu}
+    menu = { ...menu, ...newmenu };
     //restituisce menu, con immagine e longDesc
     this.lastMenu = menu;
     return menu;
   }
   // Restituisce il menu con l'immagine aggiornata, pronto per essere visualizzato in HomePage
-  static async getHomePageMenu(menu, sid){
+  static async getHomePageMenu(menu, sid) {
     const image = await this.getUpdatedImage(menu.mid, sid, menu.imageVersion);
     menu.image = `data:image/png;base64,${image}`;
     //questo menu ha info menu e immagine (no longdesc)
@@ -158,12 +167,16 @@ class ViewModel {
   }
   // Restituisce i 20 menu più vicini alla posizione passata con l'immagini aggiornate
   static async getMenus(sid) {
-    console.log("getMenus")
+    console.log("getMenus");
     // restituisce i 20 menu più vicini alla posizione passata
     let menus = [];
-    menus = await CommunicationController.GetMenus(this.positionController.location.coords.latitude, this.positionController.location.coords.longitude, sid);
+    menus = await CommunicationController.GetMenus(
+      this.positionController.location.coords.latitude,
+      this.positionController.location.coords.longitude,
+      sid
+    );
     for (let menu of menus) {
-      menu = await this.getHomePageMenu(menu,sid)
+      menu = await this.getHomePageMenu(menu, sid);
     }
     return menus;
   }
@@ -190,22 +203,34 @@ class ViewModel {
     const firstRun = await this.checkFirstRun();
     // se è la prima volta che avviamo l'app restituisce un oggetto con firstRun a true e user a null
     if (firstRun) {
-      return {firstRun: firstRun, user: null, location: null};
+      return { firstRun: firstRun, user: null, location: null };
     } else {
       // altrimenti restituisce false,  l'utente trovato nell'AsyncStorage e la posizione attuale
       const user = await this.getUserFromAsyncStorage();
       this.user = user;
       await this.positionController.getLocationAsync();
-      return {firstRun: firstRun,  user: user, location: this.positionController.location};
+      return {
+        firstRun: firstRun,
+        user: user,
+        location: this.positionController.location,
+      };
     }
   }
   static async getMenuDetail(menu, user) {
-    let newMenu = await CommunicationController.GetMenu(menu.mid, user.sid, this.positionController.location.coords.latitude, this.positionController.location.coords.longitude);
-    menu = {...menu, ...newMenu};
+    let newMenu = await CommunicationController.GetMenu(
+      menu.mid,
+      user.sid,
+      this.positionController.location.coords.latitude,
+      this.positionController.location.coords.longitude
+    );
+    menu = { ...menu, ...newMenu };
     return menu;
   }
   static async getAddress() {
-    const address = await Location.reverseGeocodeAsync({latitude: this.positionController.location.coords.latitude, longitude: this.positionController.location.coords.longitude});
+    const address = await Location.reverseGeocodeAsync({
+      latitude: this.positionController.location.coords.latitude,
+      longitude: this.positionController.location.coords.longitude,
+    });
     return address[0];
   }
   static async getLocation() {
@@ -214,14 +239,14 @@ class ViewModel {
   static async getDeliveryTime(minutes) {
     let string = "";
     if (minutes == 0) {
-      return "Immediata"
+      return "Immediata";
     }
-    if (minutes >= 60*24) {
-      string += `${Math.floor(minutes/(60*24))} giorni `;
-      minutes = minutes % (60*24);
+    if (minutes >= 60 * 24) {
+      string += `${Math.floor(minutes / (60 * 24))} giorni `;
+      minutes = minutes % (60 * 24);
     }
     if (minutes >= 60) {
-      string += `${Math.floor(minutes/60)} ore `;
+      string += `${Math.floor(minutes / 60)} ore `;
       minutes = minutes % 60;
     }
     if (minutes > 0) {
@@ -233,8 +258,17 @@ class ViewModel {
     if (!user) {
       return false;
     }
-    if (!user.uid || !user.sid || !user.firstName || !user.lastName || !user.cardFullName || !user.cardNumber || 
-        user.cardExpireMonth === null || user.cardExpireYear === null || !user.cardCVV) {
+    if (
+      !user.uid ||
+      !user.sid ||
+      !user.firstName ||
+      !user.lastName ||
+      !user.cardFullName ||
+      !user.cardNumber ||
+      user.cardExpireMonth === null ||
+      user.cardExpireYear === null ||
+      !user.cardCVV
+    ) {
       return false;
     }
     return true;
@@ -247,33 +281,42 @@ class ViewModel {
     return this.positionController.location.coords;
   }
 
-  //conferma l'ordine (quando il profilo è già completo) e lo invia al server 
+  //conferma l'ordine (quando il profilo è già completo) e lo invia al server
   static async confirmOrder(menu, user, coords) {
-    
     try {
-      let order = await CommunicationController.createOrder(menu.mid, user.sid, coords.latitude, coords.longitude);
+      let order = await CommunicationController.createOrder(
+        menu.mid,
+        user.sid,
+        coords.latitude,
+        coords.longitude
+      );
       this.lastOid = order.oid;
-      this.user = {...user, lastOid: order.oid, orderStatus: order.status};
+      this.user = {
+        ...user,
+        lastOid: order.oid,
+        orderStatus: order.status,
+        orderName: menu.name,
+      };
       //salva user nello storage con l'oid e lo status dell'ordine
       await this.storageManager.saveUserAsync(this.user);
-      order = {...order, menuName: menu.name};
-      //salva l'ultimo ordine effettuato nello storage
-      await this.storageManager.saveLastOrderAsync(order);
-      console.log("ORDINE EFFETTUATO: ",order);
       return order;
     } catch (error) {
       console.log(error);
-      if (error.message === "Error message from the server. HTTP status: 409 {\"message\":\"User already has an active order\"}") {
+      if (
+        error.message ===
+        'Error message from the server. HTTP status: 409 {"message":"User already has an active order"}'
+      ) {
         const customError = new Error("Hai già un ordine attivo");
         customError.status = 409; // Imposta il codice di stato personalizzato
         throw customError; // Lancia l'errore personalizzato
-    }
+      }
       throw error;
     }
-    
-    
   }
-
+  //restituisce l'ordine con l'oid passato
+  static async getOrder(oid, sid) {
+    return await CommunicationController.getOrder(oid, sid);
+  }
 }
 
 export default ViewModel;
