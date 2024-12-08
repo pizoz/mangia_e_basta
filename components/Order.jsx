@@ -14,7 +14,7 @@ const Order = () => {
   const [user, setUser] = useState(ViewModel.user);
   const [order, setOrder] = useState(null);
 
-  const fetchData = async () => {
+  const fetchDataFirst = async () => {
     try {
       const res = await ViewModel.storageManager.getUserAsync();
       console.log(res);
@@ -28,9 +28,31 @@ const Order = () => {
     }
   };
 
+  const fetchOrder = async () => {
+    try {
+      const res = await ViewModel.getOrder(user.lastOid, user.sid);
+      console.log(res);
+      setOrder(res);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  // UseEffect per fare la fetch iniziale e ogni 5 secondi se la schermata è in focus
   useEffect(() => {
-    fetchData();
-  }, [isFocused]);
+    // Chiamata iniziale
+    fetchDataFirst();
+
+    // Funzione per aggiornare ogni 5 secondi
+    const intervalId = setInterval(() => {
+      if (isFocused) {
+        fetchOrder();
+      }
+    }, 5000); // 5000ms = 5 secondi
+
+    // Pulisci l'intervallo quando lo schermo non è più in primo piano
+    return () => clearInterval(intervalId);
+  }, [isFocused]); // Ricorsivo solo se la schermata è in focus
 
   // useFocusEffect(
   //   useCallback(() => {
@@ -54,7 +76,6 @@ const Order = () => {
           <Text style={styles.value}>
             {order.expectedDeliveryTimestamp || "N/A"}
           </Text>
-
         </View>
       </View>
     );
