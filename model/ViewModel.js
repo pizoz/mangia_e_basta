@@ -317,6 +317,28 @@ class ViewModel {
   static async getOrder(oid, sid) {
     return await CommunicationController.getOrder(oid, sid);
   }
+
+  static async getTimeRemaining(deliveryTimestamp) {
+    const now = new Date(); // Tempo corrente
+    const deliveryTime = new Date(deliveryTimestamp); // Converte il timestamp di consegna in un oggetto Date
+  
+    // Calcola la differenza in millisecondi
+    const diffInMs = deliveryTime - now;
+  
+    // Se la consegna è già passata
+    if (diffInMs <= 0) {
+      return "La consegna è già avvenuta.";
+    }
+  
+    // Calcola il tempo rimanente in giorni, ore, minuti e secondi
+    const seconds = Math.floor(diffInMs / 1000) % 60;
+    const minutes = Math.floor(diffInMs / (1000 * 60)) % 60;
+    const hours = Math.floor(diffInMs / (1000 * 60 * 60)) % 24;
+    const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  
+    // Formatta la risposta in un formato leggibile
+    return `${days} giorni, ${hours} ore, ${minutes} minuti, ${seconds} secondi`;
+  }
 }
 
 export default ViewModel;

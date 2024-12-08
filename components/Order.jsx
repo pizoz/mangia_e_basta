@@ -76,6 +76,12 @@ const Order = () => {
           <Text style={styles.value}>
             {order.expectedDeliveryTimestamp || "N/A"}
           </Text>
+
+          <Text style={styles.label}>quanto manca:</Text>
+          <Text style={styles.value}>
+            {ViewModel.getTimeRemaining(order.expectedDeliveryTimestamp) || "N/A"}
+          </Text>
+
         </View>
       </View>
     );
