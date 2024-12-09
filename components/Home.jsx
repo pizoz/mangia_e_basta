@@ -15,11 +15,14 @@ const Home = ({ route }) => {
 
     try {
       console.log(user)
+      const userFromasync = await ViewModel.getUserFromAsyncStorage();
+      console.log("USer from Async: ",userFromasync);
       const menu = await ViewModel.getMenus(user.sid);
       setMenus(menu);
       const address = await ViewModel.getAddress();
       setAddress(address);
       console.log(address);
+      console.log(userFromasync);
     } catch (error) {
       console.error("Errore durante il caricamento dei menu:", error);
     }
@@ -30,15 +33,15 @@ const Home = ({ route }) => {
     initHome();
   }, [changed]);
 
-  if (menus === null || address === null ) {
+  if (menus === null) {
     return <LoadingScreen />;
   }
   return (
-    <View>
-      <View style={styles.address}>
+    <View style={{paddingTop: "60"}}>
+      {/*<View style={styles.address}>
       <Text >{address.street !=  null  ? address.street : address.formattedAddress }</Text>
       <Text >{address.city}</Text>
-      </View>
+      </View>*/}
       <Button title="Reset" onPress={() => ViewModel.reset()} />
       <MenusList menus={menus} user={user} setChanged={setChanged}/>
     </View>

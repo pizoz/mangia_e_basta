@@ -63,9 +63,11 @@ class ViewModel {
         console.log(error);
       }
       // lo restituisco
+      console.log(finalUser)
       return finalUser;
     } else {
       // altrimenti lo restituisco direttamente dall'AsyncStorage
+      console.log(user)
       return user;
     }
   }
@@ -291,15 +293,15 @@ class ViewModel {
         coords.longitude
       );
       this.lastOid = order.oid;
-      this.user = {
+      const newUser = {
         ...user,
         lastOid: order.oid,
         orderStatus: order.status,
-        orderName: menu.name,
       };
       //salva user nello storage con l'oid e lo status dell'ordine
-      await this.storageManager.saveUserAsync(this.user);
-      return order;
+      await this.saveUserAsync(newUser);
+      console.log(newUser);
+      return {order, newUser};
     } catch (error) {
       console.log(error);
       if (
@@ -338,6 +340,13 @@ class ViewModel {
   
     // Formatta la risposta in un formato leggibile
     return `${days} giorni, ${hours} ore, ${minutes} minuti, ${seconds} secondi`;
+  }
+  static async getMenu(mid, sid) {
+    const coords = this.getLocationCoords();
+    return await CommunicationController.GetMenu(mid, sid, coords.latitude,coords.longitude); 
+  }
+  static async saveUserAsync(user) {
+    await this.storageManager.saveUserAsync(user);
   }
 }
 

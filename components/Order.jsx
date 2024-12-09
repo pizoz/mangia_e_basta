@@ -1,95 +1,121 @@
-import React, { use } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useEffect } from "react";
-import { useState } from "react";
-import ViewModel from "../model/ViewModel";
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
-import { useIsFocused } from "@react-navigation/native";
-import { set } from "react-hook-form";
-import LoadingScreen from "./LoadingScreen";
-
+import React, { useRef, useState, useCallback } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import ViewModel from '../model/ViewModel';
+import LoadingScreen from './LoadingScreen';
+import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 const Order = () => {
+  const navigation = useNavigation();
+  const interval = useRef(null);
   const isFocused = useIsFocused();
   const [user, setUser] = useState(ViewModel.user);
+  const [menu, setMenu] = useState(null);
   const [order, setOrder] = useState(null);
+  const [onDelivery, setOnDelivery] = useState(null);
 
-  const fetchDataFirst = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
-      const res = await ViewModel.storageManager.getUserAsync();
-      console.log(res);
-      setUser(res);
-
-      const res2 = await ViewModel.getOrder(user.lastOid, user.sid);
-      console.log(res2);
-      setOrder(res2);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchOrder = async () => {
-    try {
-      const res = await ViewModel.getOrder(user.lastOid, user.sid);
-      console.log(res);
-      setOrder(res);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  // UseEffect per fare la fetch iniziale e ogni 5 secondi se la schermata è in focus
-  useEffect(() => {
-    // Chiamata iniziale
-    fetchDataFirst();
-
-    // Funzione per aggiornare ogni 5 secondi
-    const intervalId = setInterval(() => {
-      if (isFocused) {
-        fetchOrder();
+      const user = await ViewModel.storageManager.getUserAsync();
+      const updatedOrder = await ViewModel.getOrder(user.lastOid, user.sid);
+      console.log(updatedOrder);
+      if (updatedOrder.status === "COMPLETED") {
+        Alert.alert(
+          'Ordine completato',
+          'Il tuo ordine è stato consegnato con successo!',
+          [{ text: 'OK', onPress: () => navigation.navigate('Home') }]
+        )
+        if (interval.current) {
+          clearInterval(interval.current);
+          interval.current = null;
+        }
+        const newUser = {
+          ...user,
+          lastOid: updatedOrder.oid,
+          orderStatus: updatedOrder.status,
+        };
+        console.log(newUser);
+        await ViewModel.saveUserAsync(newUser);
+        setOnDelivery(false);
       }
-    }, 5000); // 5000ms = 5 secondi
+      setOrder(updatedOrder);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }, [user, onDelivery]);
 
-    // Pulisci l'intervallo quando lo schermo non è più in primo piano
-    return () => clearInterval(intervalId);
-  }, [isFocused]); // Ricorsivo solo se la schermata è in focus
+  const fetchDataFirst = useCallback(async () => {
+    try {
+      const updatedUser = await ViewModel.storageManager.getUserAsync();
+      console.log("Updated User: ",updatedUser);
+      setUser(updatedUser);
+      if (updatedUser.lastOid == null) {
+        return;
+      }
+      const fetchedOrder = await ViewModel.getOrder(updatedUser.lastOid, updatedUser.sid);
+      setOrder(fetchedOrder);
+      const fetchedMenu = await ViewModel.getMenu(fetchedOrder.mid, updatedUser.sid);
+      setMenu(fetchedMenu);
+      if (fetchedOrder.status === "ON_DELIVERY") {
+        interval.current = setInterval(() => {
+          fetchOrder();
+        }, 5000);
+      }
+      setOnDelivery(fetchedOrder.status === "ON_DELIVERY");
+      const newUser = {
+        ...updatedUser,
+        lastOid: fetchedOrder.oid,
+        orderStatus: fetchedOrder.status,
+      };
+      await ViewModel.storageManager.saveUserAsync(newUser);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }, [fetchOrder]);
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     console.log("Order focused");
-  //     setLastOid(ViewModel.lastOid);
-  //   },[isFocused])
-  // );
+  useFocusEffect(
+    useCallback(() => {
+      fetchDataFirst().catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+      return () => {
+        if (interval.current) {
+          console.log("Component unmounted");
+          clearInterval(interval.current);
+          interval.current = null;
+        }
+      };
+    }, [])
+  );
 
-  if (order && user) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.headerText}>Dettagli Ordine</Text>
-        <View style={styles.card}>
-          <Text style={styles.label}>Menu:</Text>
-          <Text style={styles.value}>{user.orderName || "N/A"}</Text>
-
-          <Text style={styles.label}>Status:</Text>
-          <Text style={styles.value}>{user.orderStatus || "N/A"}</Text>
-
-          <Text style={styles.label}>Consegna:</Text>
-          <Text style={styles.value}>
-            {order.expectedDeliveryTimestamp || "N/A"}
-          </Text>
-
-          <Text style={styles.label}>quanto manca:</Text>
-          <Text style={styles.value}>
-            {ViewModel.getTimeRemaining(order.expectedDeliveryTimestamp) || "N/A"}
-          </Text>
-
-        </View>
-      </View>
-    );
+  if (user == null || order == null) {
+    return <LoadingScreen />;
   }
-  return <LoadingScreen />;
-};
 
-export default Order;
+  return (
+    <View style={styles.container}>
+      <Text style={styles.headerText}>Dettagli Ordine</Text>
+      <View style={styles.card}>
+        <Text style={styles.label}>Status:</Text>
+        <Text style={styles.value}>{order.status || "N/A"}</Text>
+
+        <Text style={styles.label}>Consegna:</Text>
+        <Text style={styles.value}>
+          {order.status === "ON_DELIVERY"
+            ? order.expectedDeliveryTimestamp
+            : "N/A"}
+        </Text>
+
+        <Text style={styles.label}>Quanto manca:</Text>
+        <Text style={styles.value}>
+          {order.status === "ON_DELIVERY"
+            ? ViewModel.getTimeRemaining(order.expectedDeliveryTimestamp)
+            : "N/A"}
+        </Text>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -97,18 +123,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#f4f4f4", // Sfondo chiaro
+    backgroundColor: "#f4f4f4",
   },
   headerText: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 20,
-  },
-  loadingText: {
-    fontSize: 18,
-    color: "#888",
-    marginTop: 10,
   },
   card: {
     width: "90%",
@@ -133,3 +154,6 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
 });
+
+export default Order;
+

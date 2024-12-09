@@ -20,32 +20,32 @@ const ConfirmOrder = ({ navigation }) => {
 
   const handleConfirmOrder = async () => {
     try {
-      ViewModel.confirmOrder(lastMenu, user, locationCoords)
-        .catch((error) => {
-          console.log("ERRORE", error);
-          if (error.status === 409) {
-            Alert.alert(
-              "Non puoi ordinare per ora, hai già un ordine attivo!",
-              "",
-              [
-                {
-                  text: "OK",
-                  onPress: () => navigation.goBack(),
-                },
-              ],
-              { cancelable: true }
-            );
-          }
-        })
-        .then((res) => {
-          if (res === undefined) {
-            return;
-          }
-          console.log("Order confirmed");
-          navigation.navigate("Order");
-        });
+      const order = await ViewModel.confirmOrder(
+        lastMenu,
+        user,
+        locationCoords
+      );
+      if (order === undefined) {
+        return;
+      }
+      console.log("Order confirmed");
+      navigation.navigate("Order");
+
     } catch (error) {
-      console.error("Error confirming order: ", error);
+      console.log("ERRORE", error);
+      if (error.status === 409) {
+        Alert.alert(
+          "Non puoi ordinare per ora, hai già un ordine attivo!",
+          "",
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.goBack(),
+            },
+          ],
+          { cancelable: true }
+        );
+      }
     }
   };
 
