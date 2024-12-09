@@ -1,94 +1,103 @@
-import React, { useRef, useState, useCallback } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
-import ViewModel from '../model/ViewModel';
-import LoadingScreen from './LoadingScreen';
-import { Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useRef, useState, useCallback } from "react";
+import { View, Text, StyleSheet, Alert } from "react-native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import ViewModel from "../model/ViewModel";
+import LoadingScreen from "./LoadingScreen";
+
 const Order = () => {
   const navigation = useNavigation();
   const interval = useRef(null);
-  const isFocused = useIsFocused();
-  const [user, setUser] = useState(ViewModel.user);
+  let user = null;
   const [menu, setMenu] = useState(null);
   const [order, setOrder] = useState(null);
-  const [onDelivery, setOnDelivery] = useState(null);
 
-  const fetchOrder = useCallback(async () => {
+  // Funzione per fetchare l'ordine
+  const fetchOrder = async () => {
+    console.log("Fetching order...");
     try {
-      const user = await ViewModel.storageManager.getUserAsync();
-      const updatedOrder = await ViewModel.getOrder(user.lastOid, user.sid);
-      console.log(updatedOrder);
-      if (updatedOrder.status === "COMPLETED") {
-        Alert.alert(
-          'Ordine completato',
-          'Il tuo ordine è stato consegnato con successo!',
-          [{ text: 'OK', onPress: () => navigation.navigate('Home') }]
-        )
-        if (interval.current) {
-          clearInterval(interval.current);
+      if (user) {
+        const updatedOrder = await ViewModel.getOrder(user.lastOid, user.sid);
+        console.log("Updated Order:", updatedOrder);
+        if (updatedOrder.status === "COMPLETED") {
+          Alert.alert(
+            "Ordine completato",
+            "Il tuo ordine è stato consegnato con successo!",
+            [{ text: "OK", onPress: () => navigation.navigate("Home") }]
+          );
+          clearInterval(interval.current); // Interrompi l'intervallo
           interval.current = null;
+          console.log("User salvato:", user);
+          const updatedUser = {
+            ...user,
+            lastOid: updatedOrder.oid,
+            orderStatus: updatedOrder.status,
+          };
+          console.log("Updated User in fetch order:", updatedUser);
+          user = updatedUser;
         }
-        const newUser = {
-          ...user,
-          lastOid: updatedOrder.oid,
-          orderStatus: updatedOrder.status,
-        };
-        console.log(newUser);
-        await ViewModel.saveUserAsync(newUser);
-        setOnDelivery(false);
-      }
-      setOrder(updatedOrder);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  }, [user, onDelivery]);
 
-  const fetchDataFirst = useCallback(async () => {
+        setOrder(updatedOrder);
+      }
+    } catch (error) {
+      console.error("Error fetching order:", error);
+    }
+  };
+
+  // Funzione per fetchare i dati iniziali
+  const fetchDataFirst = async () => {
     try {
       const updatedUser = await ViewModel.storageManager.getUserAsync();
-      console.log("Updated User: ",updatedUser);
-      setUser(updatedUser);
-      if (updatedUser.lastOid == null) {
-        return;
-      }
-      const fetchedOrder = await ViewModel.getOrder(updatedUser.lastOid, updatedUser.sid);
-      setOrder(fetchedOrder);
-      const fetchedMenu = await ViewModel.getMenu(fetchedOrder.mid, updatedUser.sid);
-      setMenu(fetchedMenu);
-      if (fetchedOrder.status === "ON_DELIVERY") {
-        interval.current = setInterval(() => {
-          fetchOrder();
-        }, 5000);
-      }
-      setOnDelivery(fetchedOrder.status === "ON_DELIVERY");
-      const newUser = {
-        ...updatedUser,
-        lastOid: fetchedOrder.oid,
-        orderStatus: fetchedOrder.status,
-      };
-      await ViewModel.storageManager.saveUserAsync(newUser);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  }, [fetchOrder]);
+      console.log("Updated User:", updatedUser);
+      user = updatedUser;
+      if (updatedUser.lastOid && updatedUser.orderStatus !== "COMPLETED") {
+        const fetchedOrder = await ViewModel.getOrder(
+          updatedUser.lastOid,
+          updatedUser.sid
+        );
+        const fetchedMenu = await ViewModel.getMenu(
+          fetchedOrder.mid,
+          updatedUser.sid
+        );
 
+        setOrder(fetchedOrder);
+        setMenu(fetchedMenu);
+
+        // Avvia il polling se l'ordine è in consegna
+        return fetchedOrder;
+      }
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+    }
+  };
+
+  // Esegui fetchDataFirst solo quando la schermata è focalizzata
   useFocusEffect(
     useCallback(() => {
-      fetchDataFirst().catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+      fetchDataFirst().then( (fetchedOrder) => {
+        console.log("Fetched Order:", fetchedOrder);
+        if (fetchedOrder.status === "ON_DELIVERY") {
+          interval.current = setInterval(() => {
+            
+            fetchOrder();
+          }, 5000);
+        }
+      }
+      ); // Esegui i dati iniziali
+      
       return () => {
+        // Pulisci l'intervallo al momento della perdita di focus
         if (interval.current) {
-          console.log("Component unmounted");
           clearInterval(interval.current);
           interval.current = null;
+          ViewModel.storageManager.saveUserAsync(user).catch((error) => {
+            console.error("Error saving user:", error);
+          });
         }
       };
-    }, [])
+    }, []) // Vuoto: nessuna dipendenza, il comportamento è legato al focus
   );
 
-  if (user == null || order == null) {
+  if (!order) {
     return <LoadingScreen />;
   }
 
@@ -156,4 +165,3 @@ const styles = StyleSheet.create({
 });
 
 export default Order;
-

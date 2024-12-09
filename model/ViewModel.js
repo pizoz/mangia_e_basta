@@ -346,6 +346,7 @@ class ViewModel {
     return await CommunicationController.GetMenu(mid, sid, coords.latitude,coords.longitude); 
   }
   static async saveUserAsync(user) {
+    this.user = user;
     await this.storageManager.saveUserAsync(user);
   }
 }
