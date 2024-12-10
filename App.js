@@ -1,16 +1,10 @@
 import { useEffect } from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, View} from "react-native";
 import ViewModel from "./model/ViewModel";
 import FirstComponent from "./components/FirstComponent";
 import { useState } from "react";
-import Home from "./components/Home";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import Menu from "./components/Menu";
 import LoadingScreen from "./components/LoadingScreen";
 import Root from "./components/Root";
-
-const stack = createStackNavigator();
 
 export default function App() {
   const [firstRun, setFirstRun] = useState(null);
@@ -43,12 +37,6 @@ export default function App() {
     
     if (user !== null && location !== null) {
       return (
-        // <NavigationContainer>
-        //   <stack.Navigator initialRouteName="Home">
-        //     <stack.Screen name="Home" component={Home} initialParams={{user: user}}  options={{headerShown: false}}/>
-        //     <stack.Screen name="Menu" component={Menu} options={{headerShown: false}}/>
-        //   </stack.Navigator>
-        // </NavigationContainer>
         <Root user={user}/>
       );
     }

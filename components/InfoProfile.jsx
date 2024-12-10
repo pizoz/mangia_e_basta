@@ -1,13 +1,11 @@
 import React from "react";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
 import ViewModel from "../model/ViewModel";
 import LoadingScreen from "./LoadingScreen";
-import { useCallback } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import { useEffect } from "react";
-import { Info } from "lucide-react-native";
 const InfoProfile = () => {
   const [user, setUser] = useState(ViewModel.user);
   const [order, setOrder] = useState(null);

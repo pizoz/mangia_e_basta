@@ -1,4 +1,4 @@
-import React, { use } from "react";
+import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import ViewModel from "../model/ViewModel";
 import { useState } from "react";

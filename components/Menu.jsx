@@ -13,7 +13,6 @@ import { useNavigation } from "@react-navigation/native";
 import { ArrowLeft } from "lucide-react-native";
 import ViewModel from "../model/ViewModel";
 import LoadingScreen from "./LoadingScreen";
-import { set } from "react-hook-form";
 
 // Get screen dimensions for responsive design
 const { width } = Dimensions.get("window");

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState, } from "react";
+import React, { Fragment, useState, } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Dimensions,
   ImageBackground,
-  ActivityIndicator
 } from "react-native";
 import ViewModel from "../model/ViewModel";
 import { SafeAreaView } from "react-native-safe-area-context";
