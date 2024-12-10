@@ -241,7 +241,7 @@ class ViewModel {
   static async getDeliveryTime(minutes) {
     let string = "";
     if (minutes == 0) {
-      return "Immediata";
+      return "Meno di un minuto";
     }
     if (minutes >= 60 * 24) {
       string += `${Math.floor(minutes / (60 * 24))} giorni `;

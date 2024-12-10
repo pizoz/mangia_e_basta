@@ -103,7 +103,10 @@ const Form = ({ route }) => {
       cardCVV: newUser.cardCVV !== "" ? newUser.cardCVV : user.cardCVV,
       sid: user.sid,
     };
-
+    if (!ViewModel.isValidUser({...bodyParams, uid: user.uid})) {
+      Alert.alert("Validation Error", "Please fill in all required fields");
+      return;
+    }
     try {
       await CommunicationController.UpdateUser(user.uid, user.sid, bodyParams);
     } catch (error) {

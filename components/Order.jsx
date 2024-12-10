@@ -15,29 +15,30 @@ const Order = () => {
   const fetchOrder = async () => {
     console.log("Fetching order...");
     try {
-      if (user) {
-        const updatedOrder = await ViewModel.getOrder(user.lastOid, user.sid);
-        console.log("Updated Order:", updatedOrder);
-        if (updatedOrder.status === "COMPLETED") {
-          Alert.alert(
-            "Ordine completato",
-            "Il tuo ordine è stato consegnato con successo!",
-            [{ text: "OK", onPress: () => navigation.navigate("Home") }]
-          );
-          clearInterval(interval.current); // Interrompi l'intervallo
-          interval.current = null;
-          console.log("User salvato:", user);
-          const updatedUser = {
-            ...user,
-            lastOid: updatedOrder.oid,
-            orderStatus: updatedOrder.status,
-          };
-          console.log("Updated User in fetch order:", updatedUser);
-          user = updatedUser;
-        }
-
-        setOrder(updatedOrder);
+      const updatedOrder = await ViewModel.getOrder(user.lastOid, user.sid);
+      console.log("Updated Order:", updatedOrder);
+      if (updatedOrder.status === "COMPLETED") {
+        Alert.alert(
+          "Ordine completato",
+          "Il tuo ordine è stato consegnato con successo!",
+          [{ text: "OK", onPress: () => navigation.navigate("Home") }]
+        );
+        clearInterval(interval.current); // Interrompi l'intervallo
+        interval.current = null;
+        console.log("User salvato:", user);
+        const updatedUser = {
+          ...user,
+          lastOid: updatedOrder.oid,
+          orderStatus: updatedOrder.status,
+        };
+        console.log("Updated User in fetch order:", updatedUser);
+        user = updatedUser;
+        ViewModel.storageManager.saveUserAsync(updatedUser).catch((error) => {
+          console.error("Error saving user:", error);
+        });
       }
+
+      setOrder(updatedOrder);
     } catch (error) {
       console.error("Error fetching order:", error);
     }
@@ -49,8 +50,12 @@ const Order = () => {
       const updatedUser = await ViewModel.storageManager.getUserAsync();
       console.log("Updated User:", updatedUser);
       user = updatedUser;
-      if (updatedUser.lastOid && updatedUser.orderStatus !== "COMPLETED") {
-        const fetchedOrder = await ViewModel.getOrder(
+      let fetchedOrder = {
+        oid: null,
+        status: null,
+      };
+      if (updatedUser.lastOid) {
+        fetchedOrder = await ViewModel.getOrder(
           updatedUser.lastOid,
           updatedUser.sid
         );
@@ -58,13 +63,15 @@ const Order = () => {
           fetchedOrder.mid,
           updatedUser.sid
         );
-
-        setOrder(fetchedOrder);
+        console.log("Fetched Order:", fetchedOrder);
         setMenu(fetchedMenu);
-
-        // Avvia il polling se l'ordine è in consegna
-        return fetchedOrder;
+        await ViewModel.storageManager.saveUserAsync(updatedUser);
       }
+
+
+      setOrder(fetchedOrder);
+
+      return fetchedOrder;
     } catch (error) {
       console.error("Error fetching initial data:", error);
     }
@@ -73,55 +80,59 @@ const Order = () => {
   // Esegui fetchDataFirst solo quando la schermata è focalizzata
   useFocusEffect(
     useCallback(() => {
-      fetchDataFirst().then( (fetchedOrder) => {
+      fetchDataFirst().then((fetchedOrder) => {
         console.log("Fetched Order:", fetchedOrder);
         if (fetchedOrder.status === "ON_DELIVERY") {
           interval.current = setInterval(() => {
-            
             fetchOrder();
           }, 5000);
         }
-      }
-      ); // Esegui i dati iniziali
-      
+      }); // Esegui i dati iniziali
+
       return () => {
-        // Pulisci l'intervallo al momento della perdita di focus
         if (interval.current) {
           clearInterval(interval.current);
           interval.current = null;
+          console.log("Smontata");
           ViewModel.storageManager.saveUserAsync(user).catch((error) => {
             console.error("Error saving user:", error);
           });
         }
       };
-    }, []) // Vuoto: nessuna dipendenza, il comportamento è legato al focus
+    }, [])
   );
 
   if (!order) {
     return <LoadingScreen />;
   }
+  if (order && order.oid != null) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.headerText}>Dettagli Ordine</Text>
+        <View style={styles.card}>
+          <Text style={styles.label}>Status:</Text>
+          <Text style={styles.value}>{order.status || "N/A"}</Text>
 
+          <Text style={styles.label}>Consegna:</Text>
+          <Text style={styles.value}>
+            {order.status === "ON_DELIVERY"
+              ? order.expectedDeliveryTimestamp
+              : "N/A"}
+          </Text>
+
+          <Text style={styles.label}>Quanto manca:</Text>
+          <Text style={styles.value}>
+            {order.status === "ON_DELIVERY"
+              ? ViewModel.getTimeRemaining(order.expectedDeliveryTimestamp)
+              : "N/A"}
+          </Text>
+        </View>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
-      <Text style={styles.headerText}>Dettagli Ordine</Text>
-      <View style={styles.card}>
-        <Text style={styles.label}>Status:</Text>
-        <Text style={styles.value}>{order.status || "N/A"}</Text>
-
-        <Text style={styles.label}>Consegna:</Text>
-        <Text style={styles.value}>
-          {order.status === "ON_DELIVERY"
-            ? order.expectedDeliveryTimestamp
-            : "N/A"}
-        </Text>
-
-        <Text style={styles.label}>Quanto manca:</Text>
-        <Text style={styles.value}>
-          {order.status === "ON_DELIVERY"
-            ? ViewModel.getTimeRemaining(order.expectedDeliveryTimestamp)
-            : "N/A"}
-        </Text>
-      </View>
+      <Text>Schermata prima di aver effettuato un ordine</Text>
     </View>
   );
 };

@@ -1,13 +1,13 @@
 import React from "react";
+import { Image } from 'react-native';
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Home from "./Home";
+import HomeScreen from "./Home";
 import Menu from "./Menu";
 import ConfirmOrder from "./ConfirmOrder";
 import ProfilePage from "./ProfilePage";
 import Order from "./Order";
-import ViewModel from "../model/ViewModel";
 import Form from "./Form";
 
 const Tab = createBottomTabNavigator();
@@ -20,7 +20,7 @@ function HomeScreenStack({ route }) {
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen
         name="Homepage"
-        component={Home}
+        component={HomeScreen}
         initialParams={{ user }}
       />
       <HomeStack.Screen name="Menu" component={Menu} />
@@ -30,13 +30,13 @@ function HomeScreenStack({ route }) {
 }
 
 function ProfileScreenStack({ route }) {
-  const { user} = route.params;
+  const { user } = route.params;
   return (
-    <ProfileStack.Navigator screenOptions={{ headerShown: false , }}>
+    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
       <ProfileStack.Screen
         name="ProfilePage"
         component={ProfilePage}
-        initialParams={{ user: user}}
+        initialParams={{ user: user }}
       />
       <ProfileStack.Screen name="Form" component={Form} />
     </ProfileStack.Navigator>
@@ -48,19 +48,40 @@ const Root = ({ user }) => {
     <NavigationContainer>
       <Tab.Navigator
         initialRouteName="Home"
-        screenOptions={{ headerShown: false, tabBarHideOnKeyboard: true }}
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarHideOnKeyboard: true,
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconSource;
+
+            if (route.name === 'Home') {
+              iconSource = require('../assets/marketplace-store.png');
+            } else if (route.name === 'Order') {
+              iconSource = require('../assets/grocery-bag.png');
+            } else if (route.name === 'Profile') {
+              iconSource = require('../assets/user.png');
+            }
+
+            return (
+              <Image
+                source={iconSource}
+                style={{
+                  width: size,
+                  height: size,
+                  tintColor: focused ? 'black' : 'gray',
+                }}
+              />
+            );
+          },
+          tabBarActiveTintColor: 'black',
+          tabBarInactiveTintColor: 'gray',
+        })}
       >
         <Tab.Screen
           name="Home"
           component={HomeScreenStack}
           initialParams={{ user: user }}
           options={{ popToTopOnBlur: true }}
-          // listeners={({ navigation }) => ({
-          //   tabPress: () => {
-          //     // Quando si preme la tab Home, torna alla schermata iniziale della lista dei menu
-          //     navigation.navigate('Home');
-          //   },
-          // })}
         />
         <Tab.Screen name="Order" component={Order} />
         <Tab.Screen
@@ -68,14 +89,17 @@ const Root = ({ user }) => {
           component={ProfileScreenStack}
           initialParams={{ user: user }}
           options={{ popToTopOnBlur: true }}
-          // listeners={({ navigation }) => ({
-          //   tabPress: () => {
-          //     navigation.navigate('Profile', {screen: 'ProfilePage'});
-          //   },
-          // })}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              e.preventDefault();
+              navigation.navigate('Profile', { screen: 'ProfilePage' });
+            },
+          })}
         />
       </Tab.Navigator>
     </NavigationContainer>
   );
 };
+
 export default Root;
+

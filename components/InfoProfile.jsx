@@ -7,8 +7,11 @@ import LoadingScreen from "./LoadingScreen";
 import { useCallback } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import { useEffect } from "react";
+import { Info } from "lucide-react-native";
 const InfoProfile = () => {
   const [user, setUser] = useState(ViewModel.user);
+  const [order, setOrder] = useState(null);
+  const [menu, setMenu] = useState(null);
   const navigation = useNavigation();
   const isFocused = useIsFocused();
 
@@ -16,7 +19,11 @@ const InfoProfile = () => {
     try {
       const res = await ViewModel.storageManager.getUserAsync();
       console.log(res);
+      const order = await ViewModel.getOrder(res.lastOid, res.sid);
+      const menu = await ViewModel.getMenu(order.mid, res.sid);
       setUser(res);
+      setMenu(menu);
+      setOrder(order);
     } catch (error) {
       console.error("Error fetching user:", error);
     }
@@ -26,7 +33,7 @@ const InfoProfile = () => {
     fetchUser();
   }, [isFocused]);
 
-  if (user === null) {
+  if (user === null ||  menu === null) {
     return <LoadingScreen />;
   }
   return (
@@ -43,18 +50,18 @@ const InfoProfile = () => {
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Payment Information</Text>
         <InfoItem
-          label="Card Number"
-          value={user.cardNumber || "Not provided"}
-        />
-        <InfoItem
           label="Card Holder"
           value={user.cardFullName || "Not provided"}
+        />
+        <InfoItem
+          label="Card Number"
+          value={user.cardNumber || "Not provided"}
         />
         <InfoItem
           label="Expiration"
           value={
             user.cardExpireMonth && user.cardExpireYear
-              ? `${user.cardExpireMonth}/${user.cardExpireYear}`
+              ? `${user.cardExpireMonth.toString().length < 2 ? "0"+user.cardExpireMonth.toString() : user.cardExpireMonth.toString()}/${user.cardExpireYear.toString().slice(-2)}`
               : "Not provided"
           }
         />
@@ -62,10 +69,10 @@ const InfoProfile = () => {
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Order Information</Text>
         <InfoItem
-          label="Last Order ID"
-          value={user.lastOid || "No orders yet"}
+          label="Last Meal"
+          value={menu.name || "No orders yet"}
         />
-        <InfoItem label="Order Status" value={user.orderStatus || "N/A"} />
+        <InfoItem label="Order Status" value={order.status || "N/A"} />
       </View>
       <Button
         title="Edit Profile"
