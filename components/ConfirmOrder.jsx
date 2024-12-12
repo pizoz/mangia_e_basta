@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import ViewModel from "../model/ViewModel";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const ConfirmOrder = ({ navigation }) => {
   const lastMenu = ViewModel.getLastMenu();
@@ -10,27 +10,31 @@ const ConfirmOrder = ({ navigation }) => {
 
   const [address, setAddress] = useState(null);
 
-  try {
-    ViewModel.getAddress().then((res) => {
-      setAddress(res.formattedAddress);
-    });
-  } catch (error) {
-    console.error("Error getting address: ", error);
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      const address = await ViewModel.getAddress(locationCoords);
+      setAddress(address.formattedAddress);
+      const utente = await ViewModel.getUserFromAsyncStorage();
+      ViewModel.user = utente;
+    };
+    fetchData();
+  }, []);
 
   const handleConfirmOrder = async () => {
     try {
-      const order = await ViewModel.confirmOrder(
-        lastMenu,
-        user,
-        locationCoords
-      );
-      if (order === undefined) {
-        return;
+      const lastOrder = await ViewModel.getOrder(user.lastOid, user.sid);
+      if (lastOrder.status === "COMPLETED") {
+        const order = await ViewModel.confirmOrder(
+          lastMenu,
+          user,
+          locationCoords
+        );
+        if (order === undefined) {
+          return;
+        }
+        console.log("Order confirmed");
+        navigation.navigate("Order");
       }
-      console.log("Order confirmed");
-      navigation.navigate("Order");
-
     } catch (error) {
       console.log("ERRORE", error);
       if (error.status === 409) {

@@ -75,6 +75,7 @@ const Root = ({ user }) => {
           },
           tabBarActiveTintColor: 'black',
           tabBarInactiveTintColor: 'gray',
+          
         })}
       >
         <Tab.Screen

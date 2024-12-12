@@ -33,6 +33,7 @@ const Order = () => {
         };
         console.log("Updated User in fetch order:", updatedUser);
         user = updatedUser;
+        ViewModel.user = updatedUser;
         ViewModel.storageManager.saveUserAsync(updatedUser).catch((error) => {
           console.error("Error saving user:", error);
         });
@@ -50,6 +51,7 @@ const Order = () => {
       const updatedUser = await ViewModel.storageManager.getUserAsync();
       console.log("Updated User:", updatedUser);
       user = updatedUser;
+      ViewModel.user = updatedUser;
       let fetchedOrder = {
         oid: null,
         status: null,

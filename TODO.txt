@@ -39,3 +39,8 @@ OrderPage:
 Confirm Order:
 
 --
+
+DA FARE:
+    Esecuzione senza posizione
+    Mappa
+    Inizializzazione da ultima schermata aperta
