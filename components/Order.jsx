@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, Alert } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import ViewModel from "../model/ViewModel";
 import LoadingScreen from "./LoadingScreen";
+import MapOrder from "./MapOrder";
+import { set } from "react-hook-form";
 
 const Order = () => {
   const navigation = useNavigation();
@@ -67,9 +69,9 @@ const Order = () => {
         );
         console.log("Fetched Order:", fetchedOrder);
         setMenu(fetchedMenu);
+
         await ViewModel.storageManager.saveUserAsync(updatedUser);
       }
-
 
       setOrder(fetchedOrder);
 
@@ -110,7 +112,9 @@ const Order = () => {
   if (order && order.oid != null) {
     return (
       <View style={styles.container}>
-        <Text style={styles.headerText}>Dettagli Ordine</Text>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Dettagli Ordine</Text>
+        </View>
         <View style={styles.card}>
           <Text style={styles.label}>Status:</Text>
           <Text style={styles.value}>{order.status || "N/A"}</Text>
@@ -129,6 +133,28 @@ const Order = () => {
               : "N/A"}
           </Text>
         </View>
+        <View style={styles.mapContainer}>
+          
+   {order?.deliveryLocation && order?.currentPosition && menu?.location ? (
+    <MapOrder
+      deliveryLocation={{
+        latitude: order.deliveryLocation.lat,
+        longitude: order.deliveryLocation.lng,
+      }}
+      dronePosition={{
+        latitude: order.currentPosition.lat,
+        longitude: order.currentPosition.lng,
+      }}
+      menuPosition={{
+        latitude: menu.location.lat,
+        longitude: menu.location.lng,
+      }}
+    />
+  ) : (
+    <Text>Caricamento dati della mappa...</Text>
+  )} 
+</View>
+
       </View>
     );
   }
@@ -142,19 +168,22 @@ const Order = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     padding: 20,
     backgroundColor: "#f4f4f4",
+  },
+  headerContainer: {
+    alignItems: "center",
+    marginBottom: 20,
   },
   headerText: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 20,
+    marginBottom: 10,
+    marginTop: 30,
   },
   card: {
-    width: "90%",
+    width: "100%",
     padding: 20,
     backgroundColor: "#fff",
     borderRadius: 10,
@@ -162,7 +191,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
-    marginTop: 10,
+    marginBottom: 20,
+    alignSelf: "center",
   },
   label: {
     fontSize: 16,
@@ -174,6 +204,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#333",
     marginBottom: 15,
+  },
+  mapContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ddd",
+    borderRadius: 10,
   },
 });
 
