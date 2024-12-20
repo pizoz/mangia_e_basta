@@ -324,22 +324,29 @@ class ViewModel {
     const now = new Date(); // Tempo corrente
     const deliveryTime = new Date(deliveryTimestamp); // Converte il timestamp di consegna in un oggetto Date
   
-    // Calcola la differenza in millisecondi
-    const diffInMs = deliveryTime - now;
-  
-    // Se la consegna è già passata
-    if (diffInMs <= 0) {
-      return "La consegna è già avvenuta.";
-    }
-  
     // Calcola il tempo rimanente in giorni, ore, minuti e secondi
     const seconds = Math.floor(diffInMs / 1000) % 60;
     const minutes = Math.floor(diffInMs / (1000 * 60)) % 60;
     const hours = Math.floor(diffInMs / (1000 * 60 * 60)) % 24;
     const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-  
+    let string = "";
+    if (days > 0) {
+      string += `${days} giorni, `;
+    }
+    if (hours > 0) {
+      string += `${hours} ore, `;
+    }
+    if (minutes > 0) {
+      string += `${minutes} minuti, `;
+    }
+    if (seconds > 0) {
+      string += `${seconds} secondi`;
+    }
+    if (string === "") {
+      string = "Meno di un minuto";
+    }
     // Formatta la risposta in un formato leggibile
-    return `${days} giorni, ${hours} ore, ${minutes} minuti, ${seconds} secondi`;
+    return string;
   }
   static async getMenu(mid, sid) {
     const coords = this.getLocationCoords();
@@ -348,6 +355,15 @@ class ViewModel {
   static async saveUserAsync(user) {
     this.user = user;
     await this.storageManager.saveUserAsync(user);
+  }
+
+  static fromTimeStampToDayAndTime(timestamp) {
+    const parts = timestamp.split("T");
+    const date = parts[0];
+    let dateParts = date.split("-");
+    const time = parts[1].split(".")[0].slice(0, -3);
+    let string = dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0] + " ore " + time;
+    return string;
   }
 }
 

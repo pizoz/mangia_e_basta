@@ -4,11 +4,16 @@ import MapView, { Marker, Polyline } from "react-native-maps";
 
 const MapOrder = ({ deliveryLocation, dronePosition, menuPosition }) => {
   // Stato per la regione della mappa
+  // const latitudeDifference = Math.abs(menuPosition.latitude - deliveryLocation.latitude);
+  // const longitudeDifference = Math.abs(menuPosition.longitude - deliveryLocation.longitude);
+  
   const [region, setRegion] = useState({
     latitude: dronePosition.latitude,
     longitude: dronePosition.longitude,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
+    // latitudeDelta: latitudeDifference,
+    // longitudeDelta: longitudeDifference,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
   });
 
   // Aggiorna la regione della mappa quando la posizione del drone cambia
@@ -16,8 +21,10 @@ const MapOrder = ({ deliveryLocation, dronePosition, menuPosition }) => {
     setRegion({
       latitude: dronePosition.latitude,
       longitude: dronePosition.longitude,
-      latitudeDelta: 0.05,
-      longitudeDelta: 0.05,
+      // latitudeDelta: latitudeDifference,
+      // longitudeDelta: longitudeDifference,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
     });
   }, [dronePosition]); // Esegui l'aggiornamento ogni volta che la posizione del drone cambia
 
@@ -25,7 +32,7 @@ const MapOrder = ({ deliveryLocation, dronePosition, menuPosition }) => {
     <View style={styles.container}>
       <MapView
         style={styles.map}
-        showsUserLocation={true}
+        showsUserLocation={false}
         region={region} // Usa la regione aggiornata
         onRegionChangeComplete={(newRegion) => setRegion(newRegion)} // Opzionale: aggiorna la regione se l'utente muove la mappa
       >
@@ -34,22 +41,23 @@ const MapOrder = ({ deliveryLocation, dronePosition, menuPosition }) => {
           <Marker coordinate={dronePosition} title="Drone Position">
             <Image
               source={require("../assets/drone.png")}
-              style={{ width: 40, height: 40 }}
+              style={{ width: 30, height: 30 }}
+              
             />
           </Marker>
         ) : null}
 
-        <Marker coordinate={menuPosition} title={"Menu Position"}>
+        <Marker coordinate={menuPosition} title={"Menu Position"} >
           <Image
-            source={require("../assets/menuLocation.png")}
-            style={{ width: 40, height: 40 }}
+            source={require("../assets/shopping.png")}
+            style={{ width: 35, height: 35 }}
           />
         </Marker>
 
-        <Marker coordinate={deliveryLocation} title={"Delivery Position"}>
+        <Marker coordinate={deliveryLocation} title={"Delivery Position"} >
           <Image
-            source={require("../assets/map-marker-home.png")}
-            style={{ width: 40, height: 40 }}
+            source={require("../assets/home.png")}
+            style={{ width: 35, height: 35 }}
           />
         </Marker>
 

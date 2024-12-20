@@ -6,6 +6,7 @@ import ViewModel from "../model/ViewModel";
 import LoadingScreen from "./LoadingScreen";
 import { useIsFocused } from "@react-navigation/native";
 import { useEffect } from "react";
+import { Info } from "lucide-react-native";
 const InfoProfile = () => {
   const [user, setUser] = useState(ViewModel.user);
   const [order, setOrder] = useState(null);
@@ -17,8 +18,12 @@ const InfoProfile = () => {
     try {
       const res = await ViewModel.storageManager.getUserAsync();
       console.log(res);
-      const order = await ViewModel.getOrder(res.lastOid, res.sid);
-      const menu = await ViewModel.getMenu(order.mid, res.sid);
+      let order = null;
+      let menu = null;
+      if (res.lastOid != null) {
+        order = await ViewModel.getOrder(res.lastOid, res.sid);
+        menu = await ViewModel.getMenu(order.mid, res.sid);
+      }
       setUser(res);
       setMenu(menu);
       setOrder(order);
@@ -31,7 +36,7 @@ const InfoProfile = () => {
     fetchUser();
   }, [isFocused]);
 
-  if (user === null ||  menu === null) {
+  if (user === null) {
     return <LoadingScreen />;
   }
   return (
@@ -59,18 +64,25 @@ const InfoProfile = () => {
           label="Expiration"
           value={
             user.cardExpireMonth && user.cardExpireYear
-              ? `${user.cardExpireMonth.toString().length < 2 ? "0"+user.cardExpireMonth.toString() : user.cardExpireMonth.toString()}/${user.cardExpireYear.toString().slice(-2)}`
+              ? `${
+                  user.cardExpireMonth.toString().length < 2
+                    ? "0" + user.cardExpireMonth.toString()
+                    : user.cardExpireMonth.toString()
+                }/${user.cardExpireYear.toString().slice(-2)}`
               : "Not provided"
           }
         />
       </View>
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Order Information</Text>
-        <InfoItem
-          label="Last Meal"
-          value={menu.name || "No orders yet"}
-        />
-        <InfoItem label="Order Status" value={order.status || "N/A"} />
+        {order && menu ? (
+          <>
+            <InfoItem label="Last Meal" value={menu.name || "No orders yet"} />
+            <InfoItem label="Order Status" value={order.status || "N/A"} />
+          </>
+        ) : (
+          <InfoItem label="Last Meal" value="No orders yet" />
+        )}
       </View>
       <Button
         title="Edit Profile"

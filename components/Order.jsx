@@ -12,7 +12,6 @@ const Order = () => {
   let user = null;
   const [menu, setMenu] = useState(null);
   const [order, setOrder] = useState(null);
-
   // Funzione per fetchare l'ordine
   const fetchOrder = async () => {
     console.log("Fetching order...");
@@ -122,15 +121,15 @@ const Order = () => {
           <Text style={styles.label}>Consegna:</Text>
           <Text style={styles.value}>
             {order.status === "ON_DELIVERY"
-              ? order.expectedDeliveryTimestamp
-              : "N/A"}
+              ? ViewModel.fromTimeStampToDayAndTime(order.expectedDeliveryTimestamp)
+              : ViewModel.fromTimeStampToDayAndTime(order.deliveryTimestamp)}
           </Text>
 
           <Text style={styles.label}>Quanto manca:</Text>
           <Text style={styles.value}>
             {order.status === "ON_DELIVERY"
               ? ViewModel.getTimeRemaining(order.expectedDeliveryTimestamp)
-              : "N/A"}
+              : "Ordine già consegnato"}
           </Text>
         </View>
         <View style={styles.mapContainer}>
