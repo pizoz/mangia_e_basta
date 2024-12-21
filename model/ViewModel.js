@@ -323,7 +323,7 @@ class ViewModel {
   static async getTimeRemaining(deliveryTimestamp) {
     const now = new Date(); // Tempo corrente
     const deliveryTime = new Date(deliveryTimestamp); // Converte il timestamp di consegna in un oggetto Date
-  
+    const diffInMs = deliveryTime - now; // Calcola la differenza in millisecondi
     // Calcola il tempo rimanente in giorni, ore, minuti e secondi
     const seconds = Math.floor(diffInMs / 1000) % 60;
     const minutes = Math.floor(diffInMs / (1000 * 60)) % 60;
@@ -343,7 +343,7 @@ class ViewModel {
       string += `${seconds} secondi`;
     }
     if (string === "") {
-      string = "Meno di un minuto";
+      string = "Meno di un secondo";
     }
     // Formatta la risposta in un formato leggibile
     return string;

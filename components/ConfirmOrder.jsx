@@ -53,9 +53,9 @@ const ConfirmOrder = ({ navigation }) => {
     }
   };
 
-  if (!address) {
-    return <LoadingScreen />;
-  }
+  // if (!address) {
+  //   return <LoadingScreen />;
+  // }
 
   return (
     <View style={styles.container}>

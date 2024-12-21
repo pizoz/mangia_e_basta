@@ -68,12 +68,12 @@ const Root = ({ user }) => {
                 style={{
                   width: size,
                   height: size,
-                  tintColor: focused ? 'black' : 'gray',
+                  tintColor: focused ? '#4a90e2' : 'gray',
                 }}
               />
             );
           },
-          tabBarActiveTintColor: 'black',
+          tabBarActiveTintColor: '#4a90e2',
           tabBarInactiveTintColor: 'gray',
           
         })}

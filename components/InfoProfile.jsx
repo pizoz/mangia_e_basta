@@ -1,18 +1,19 @@
-import React from "react";
-import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
-import ViewModel from "../model/ViewModel";
-import LoadingScreen from "./LoadingScreen";
-import { useIsFocused } from "@react-navigation/native";
-import { useEffect } from "react";
-import { Info } from "lucide-react-native";
+import React, { useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import ViewModel from '../model/ViewModel';
+import LoadingScreen from './LoadingScreen';
+
 const InfoProfile = () => {
   const [user, setUser] = useState(ViewModel.user);
   const [order, setOrder] = useState(null);
   const [menu, setMenu] = useState(null);
   const navigation = useNavigation();
   const isFocused = useIsFocused();
+  const [fadeAnim] = useState(new Animated.Value(0));
 
   const fetchUser = async () => {
     try {
@@ -27,6 +28,11 @@ const InfoProfile = () => {
       setUser(res);
       setMenu(menu);
       setOrder(order);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
     } catch (error) {
       console.error("Error fetching user:", error);
     }
@@ -39,64 +45,73 @@ const InfoProfile = () => {
   if (user === null) {
     return <LoadingScreen />;
   }
+
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.decorativeHeader}>
-        <Text style={styles.decorativeText}>👤</Text>
-      </View>
+      <LinearGradient
+        colors={['#4a90e2', '#63a4ff']}
+        style={styles.header}
+      >
+        <View style={styles.avatarContainer}>
+          <Text style={styles.avatarText}>{'👤'}</Text>
+        </View>
+      </LinearGradient>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.sectionTitle}>Personal Information</Text>
-        <InfoItem label="First Name" value={user.firstName || "Not provided"} />
-        <InfoItem label="Last Name" value={user.lastName || "Not provided"} />
-      </View>
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Payment Information</Text>
-        <InfoItem
-          label="Card Holder"
-          value={user.cardFullName || "Not provided"}
-        />
-        <InfoItem
-          label="Card Number"
-          value={user.cardNumber || "Not provided"}
-        />
-        <InfoItem
-          label="Expiration"
-          value={
-            user.cardExpireMonth && user.cardExpireYear
-              ? `${
-                  user.cardExpireMonth.toString().length < 2
-                    ? "0" + user.cardExpireMonth.toString()
-                    : user.cardExpireMonth.toString()
-                }/${user.cardExpireYear.toString().slice(-2)}`
-              : "Not provided"
-          }
-        />
-      </View>
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Order Information</Text>
-        {order && menu ? (
-          <>
-            <InfoItem label="Last Meal" value={menu.name || "No orders yet"} />
-            <InfoItem label="Order Status" value={order.status || "N/A"} />
-          </>
-        ) : (
-          <InfoItem label="Last Meal" value="No orders yet" />
-        )}
-      </View>
-      <Button
-        title="Edit Profile"
-        onPress={() =>
-          navigation.navigate("Form", { user: user, before: "ProfilePage" })
-        }
-      />
+      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+        <InfoSection title="Personal Information">
+          <InfoItem icon="person" label="First Name" value={user.firstName || "Not provided"} />
+          <InfoItem icon="people" label="Last Name" value={user.lastName || "Not provided"} />
+        </InfoSection>
+
+        <InfoSection title="Payment Information">
+          <InfoItem icon="card" label="Card Holder" value={user.cardFullName || "Not provided"} />
+          <InfoItem icon="card" label="Card Number" value={user.cardNumber ? `**** **** **** ${user.cardNumber.slice(-4)}` : "Not provided"} />
+          <InfoItem 
+            icon="calendar" 
+            label="Expiration" 
+            value={
+              user.cardExpireMonth && user.cardExpireYear
+                ? `${user.cardExpireMonth.toString().padStart(2, '0')}/${user.cardExpireYear.toString().slice(-2)}`
+                : "Not provided"
+            } 
+          />
+        </InfoSection>
+
+        <InfoSection title="Order Information">
+          {order && menu ? (
+            <>
+              <InfoItem icon="restaurant" label="Last Meal" value={menu.name || "No orders yet"} />
+              <InfoItem icon="information-circle" label="Order Status" value={order.status || "N/A"} />
+            </>
+          ) : (
+            <InfoItem icon="restaurant" label="Last Meal" value="No orders yet" />
+          )}
+        </InfoSection>
+
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => navigation.navigate("Form", { user: user, before: "ProfilePage" })}
+        >
+          <Text style={styles.editButtonText}>Edit Profile</Text>
+        </TouchableOpacity>
+      </Animated.View>
     </ScrollView>
   );
 };
 
-const InfoItem = ({ label, value }) => (
+const InfoSection = ({ title, children }) => (
+  <View style={styles.section}>
+    <Text style={styles.sectionTitle}>{title}</Text>
+    {children}
+  </View>
+);
+
+const InfoItem = ({ icon, label, value }) => (
   <View style={styles.infoItem}>
-    <Text style={styles.label}>{label}:</Text>
+    <View style={styles.infoItemLeft}>
+      <Ionicons name={icon} size={24} color="#4a90e2" style={styles.infoItemIcon} />
+      <Text style={styles.label}>{label}</Text>
+    </View>
     <Text style={styles.value}>{value}</Text>
   </View>
 );
@@ -104,45 +119,41 @@ const InfoItem = ({ label, value }) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  decorativeHeader: {
-    height: 150,
-    backgroundColor: "#4a90e2",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  decorativeText: {
-    fontSize: 60,
+    backgroundColor: '#f8f9fa',
   },
   header: {
-    padding: 20,
-    alignItems: "center",
-    backgroundColor: "#4a90e2",
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  headerText: {
+  avatarContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  avatarText: {
+    fontSize: 40,
+    color: '#ffffff',
+    fontWeight: 'bold',
+  },
+  headerName: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "#ffffff",
+    fontWeight: 'bold',
+    color: '#ffffff',
   },
-  infoContainer: {
-    backgroundColor: "#ffffff",
+  content: {
+    padding: 20,
+  },
+  section: {
+    backgroundColor: '#ffffff',
     borderRadius: 10,
     padding: 20,
-    margin: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sectionContainer: {
-    backgroundColor: "#ffffff",
-    borderRadius: 10,
-    padding: 20,
-    margin: 10,
-    marginTop: 0,
-    shadowColor: "#000",
+    marginBottom: 20,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -150,23 +161,44 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#333",
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#333',
   },
   infoItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  infoItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  infoItemIcon: {
+    marginRight: 10,
   },
   label: {
     fontSize: 16,
-    color: "#666",
+    color: '#666',
   },
   value: {
     fontSize: 16,
-    fontWeight: "500",
-    color: "#333",
+    fontWeight: '500',
+    color: '#333',
+  },
+  editButton: {
+    backgroundColor: '#4a90e2',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  editButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

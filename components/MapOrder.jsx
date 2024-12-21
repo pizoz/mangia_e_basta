@@ -34,7 +34,7 @@ const MapOrder = ({ deliveryLocation, dronePosition, menuPosition }) => {
         style={styles.map}
         showsUserLocation={false}
         region={region} // Usa la regione aggiornata
-        onRegionChangeComplete={(newRegion) => setRegion(newRegion)} // Opzionale: aggiorna la regione se l'utente muove la mappa
+        // onRegionChangeComplete={(newRegion) => setRegion(newRegion)} // Opzionale: aggiorna la regione se l'utente muove la mappa
       >
         {dronePosition?.latitude !== deliveryLocation?.latitude ||
         dronePosition?.longitude !== deliveryLocation?.longitude ? (
@@ -47,12 +47,14 @@ const MapOrder = ({ deliveryLocation, dronePosition, menuPosition }) => {
           </Marker>
         ) : null}
 
-        <Marker coordinate={menuPosition} title={"Menu Position"} >
+        {dronePosition?.latitude !== menuPosition?.latitude || dronePosition?.longitude !== menuPosition?.longitude ? (
+          <Marker coordinate={menuPosition} title={"Menu Position"} >
           <Image
             source={require("../assets/shopping.png")}
             style={{ width: 35, height: 35 }}
           />
-        </Marker>
+        </Marker> )
+        : null}
 
         <Marker coordinate={deliveryLocation} title={"Delivery Position"} >
           <Image
@@ -64,7 +66,7 @@ const MapOrder = ({ deliveryLocation, dronePosition, menuPosition }) => {
         {/* Disegna una linea tra il menuPosition e il deliveryLocation */}
         <Polyline
           coordinates={[menuPosition, deliveryLocation]} // Le coordinate da connettere
-          strokeColor="#FF6347" // Colore della linea (arancione)
+          strokeColor="#0c27f2" // Colore della linea (arancione)
           strokeWidth={3} // Spessore della linea
         />
       </MapView>
@@ -78,6 +80,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
+    borderWidth: 2,
+    borderColor: "#4a90e2",
   },
   map: {
     flex: 1,
