@@ -5,6 +5,7 @@ import * as Location from "expo-location";
 class ViewModel {
   static storageManager = null;
   static positionController = null;
+  static lastScreen = null;
   static lastMenu = null;
   static user = null;
   static lastOid = null;
@@ -59,6 +60,7 @@ class ViewModel {
 
       try {
         await this.storageManager.saveUserAsync(finalUser);
+        this.user = finalUser;
       } catch (error) {
         console.log(error);
       }
@@ -67,6 +69,7 @@ class ViewModel {
       return finalUser;
     } else {
       // altrimenti lo restituisco direttamente dall'AsyncStorage
+      this.user = user;
       console.log(user)
       return user;
     }
@@ -209,12 +212,14 @@ class ViewModel {
     } else {
       // altrimenti restituisce false,  l'utente trovato nell'AsyncStorage e la posizione attuale
       const user = await this.getUserFromAsyncStorage();
+      const lastScreen = await this.storageManager.getLastScreenAsync();
       this.user = user;
       await this.positionController.getLocationAsync();
       return {
         firstRun: firstRun,
         user: user,
         location: this.positionController.location,
+        lastScreen: lastScreen.screen
       };
     }
   }
@@ -275,7 +280,14 @@ class ViewModel {
     }
     return true;
   }
-  static getLastMenu() {
+  static async getLastMenu() {
+    if (!this.lastMenu) {
+      const newMenu = await this.storageManager.getLastMenuAsync();
+      console.log("New Menu", newMenu.image);
+      this.lastMenu = newMenu;
+      return newMenu;
+    }
+    console.log("Last Menu", this.lastMenu);
     return this.lastMenu;
   }
   //restituisce coordinate di location del positionController con latitudine e longitudine
@@ -301,7 +313,8 @@ class ViewModel {
       //salva user nello storage con l'oid e lo status dell'ordine
       await this.saveUserAsync(newUser);
       console.log(newUser);
-      return {order, newUser};
+      this.user = newUser;
+      return { order, newUser };
     } catch (error) {
       console.log(error);
       if (
@@ -350,9 +363,10 @@ class ViewModel {
   }
   static async getMenu(mid, sid) {
     const coords = this.getLocationCoords();
-    return await CommunicationController.GetMenu(mid, sid, coords.latitude,coords.longitude); 
+    return await CommunicationController.GetMenu(mid, sid, coords.latitude, coords.longitude);
   }
   static async saveUserAsync(user) {
+    console.log("utenteSalvatoo: ",user);
     this.user = user;
     await this.storageManager.saveUserAsync(user);
   }
@@ -365,6 +379,68 @@ class ViewModel {
     let string = dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0] + " ore " + time;
     return string;
   }
-}
 
+  static setLastScreen(screen) {
+    this.lastScreen = screen;
+  }
+  static setLastMenu(menu) {
+    this.lastMenu = menu;
+  }
+  static async saveLastScreenAsync() {
+    console.log("saveLastScreenAsync");
+    console.log(this.lastScreen);
+    console.log(this.lastMenu);
+    await this.storageManager.saveLastScreenAsync(this.lastScreen, this.lastMenu);
+
+
+  }
+  static async getLastScreenAsync() {
+    console.log("getLastScreenAsync");
+    const screen = await this.storageManager.getLastScreenAsync();
+    console.log(screen.screen!==null?screen.screen:"null");
+    ViewModel.setLastScreen(screen.screen);
+    ViewModel.setLastMenu(JSON.parse(screen.lastMenu));
+    return screen;
+  }
+  static getInitialRouteNames(lastScreen) {
+      let initialRouteNames = new Map();
+  
+      switch (lastScreen) {
+        case "Menu":
+          initialRouteNames.set("Root", "Home");
+          initialRouteNames.set("Home", "Menu");
+          initialRouteNames.set("Profile", "ProfilePage");
+          break;
+        case "ConfirmOrder":
+          initialRouteNames.set("Root", "Home");
+          initialRouteNames.set("Home", "ConfirmOrder");
+          initialRouteNames.set("Profile", "ProfilePage");
+          break;
+        case "Homepage":
+          initialRouteNames.set("Root", "Home");
+          initialRouteNames.set("Home", "Homepage");
+          initialRouteNames.set("Profile", "ProfilePage");
+          break;
+  
+        case "ProfilePage":
+          initialRouteNames.set("Root", "Profile");
+          initialRouteNames.set("Home", "Homepage");
+          initialRouteNames.set("Profile", "ProfilePage");
+          break;
+        case "Form":
+          initialRouteNames.set("Root", "Profile");
+          initialRouteNames.set("Home", "Homepage");
+          initialRouteNames.set("Profile", "Form");
+          break;
+        case "Order":
+          initialRouteNames.set("Root", "Order");
+          initialRouteNames.set("Home", "Homepage");
+          initialRouteNames.set("Profile", "ProfilePage");
+          break;
+        default:
+      }
+      return initialRouteNames;
+    }
+
+}
 export default ViewModel;

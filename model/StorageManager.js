@@ -91,9 +91,37 @@ export default class StorageManager {
     }
     return JSON.parse(user);
   }
-  async deleteUserAsync() {
+  async deleteUserAsync() { // cambia da lstScreen Data a lastMenu
+
+
     console.log("deleteUserAsync");
     await AsyncStorage.removeItem("user");
+    await AsyncStorage.removeItem("lastScreen");
+    await AsyncStorage.removeItem("lastMenu");
   }
   
+  async saveLastScreenAsync(screen, lastMenu) {
+    if (lastMenu) {
+      await AsyncStorage.setItem("lastMenu", JSON.stringify(lastMenu));
+    }
+    if (screen) {
+
+      await AsyncStorage.setItem("lastScreen", screen);
+    }
+
+    
+  }
+  async getLastScreenAsync() {
+    console.log("getLastScreenAsync");
+    const screen = await AsyncStorage.getItem("lastScreen");
+    const lastMenu = await AsyncStorage.getItem("lastMenu");
+    
+
+    return { screen, lastMenu: JSON.parse(lastMenu) };
+  }
+  async getLastMenuAsync() {
+    console.log("getLastMenuAsync");
+    const lastMenu = await AsyncStorage.getItem("lastMenu");
+    return JSON.parse(lastMenu);
+  }
 }

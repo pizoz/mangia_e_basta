@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -17,8 +17,12 @@ import CommunicationController from '../model/CommunicationController';
 import ViewModel from '../model/ViewModel';
 
 const Form = ({ route }) => {
-  const { user, before } = route.params;
+  const { before } = route.params != null ? route.params : { before: 'ProfilePage' };
+  const user = ViewModel.user;
   const navigation = useNavigation();
+
+
+
   const [newUser, setNewUser] = useState({
     firstName: '',
     lastName: '',
@@ -105,7 +109,7 @@ const Form = ({ route }) => {
       sid: user.sid,
     };
     if (!ViewModel.isValidUser({...bodyParams, uid: user.uid})) {
-      Alert.alert('Validation Error', 'Please fill in all required fields');
+      Alert.alert('Validation Error', 'Please fill in all required fields to complete your profile');
       return;
     }
     try {
@@ -147,7 +151,9 @@ const Form = ({ route }) => {
       />
     </View>
   );
-
+  useEffect(() => {
+    ViewModel.lastScreen = 'Form';
+  }, []);
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

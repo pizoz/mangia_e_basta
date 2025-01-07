@@ -18,7 +18,7 @@ const InfoProfile = () => {
   const fetchUser = async () => {
     try {
       const res = await ViewModel.storageManager.getUserAsync();
-      console.log(res);
+      console.log("res:  ",res);
       let order = null;
       let menu = null;
       if (res.lastOid != null) {
@@ -42,7 +42,7 @@ const InfoProfile = () => {
     fetchUser();
   }, [isFocused]);
 
-  if (user === null) {
+  if (!user) {
     return <LoadingScreen />;
   }
 
@@ -57,7 +57,7 @@ const InfoProfile = () => {
         </View>
       </LinearGradient>
 
-      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+      <View style={styles.content}>
         <InfoSection title="Personal Information">
           <InfoItem icon="person" label="First Name" value={user.firstName || "Not provided"} />
           <InfoItem icon="people" label="Last Name" value={user.lastName || "Not provided"} />
@@ -81,7 +81,11 @@ const InfoProfile = () => {
           {order && menu ? (
             <>
               <InfoItem icon="restaurant" label="Last Meal" value={menu.name || "No orders yet"} />
-              <InfoItem icon="information-circle" label="Order Status" value={order.status || "N/A"} />
+              <InfoItem icon="information-circle" label="Order Status" value={
+                order.status === "ON_DELIVERY" ? "On Delivery" :
+                order.status === "COMPLETED" ? "Completed" :
+                "Not provided"
+              } />
             </>
           ) : (
             <InfoItem icon="restaurant" label="Last Meal" value="No orders yet" />
@@ -90,11 +94,11 @@ const InfoProfile = () => {
 
         <TouchableOpacity
           style={styles.editButton}
-          onPress={() => navigation.navigate("Form", { user: user, before: "ProfilePage" })}
+          onPress={() => navigation.navigate("Form", { before: "ProfilePage" })}
         >
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
-      </Animated.View>
+      </View>
     </ScrollView>
   );
 };

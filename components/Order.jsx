@@ -22,7 +22,7 @@ const Order = () => {
         Alert.alert(
           "Ordine completato",
           "Il tuo ordine è stato consegnato con successo!",
-          [{ text: "OK", onPress: () => navigation.navigate("Home") }]
+          [{ text: "OK", onPress: () => navigation.navigate("Home", {screen: "Homepage"} ) }]
         );
         clearInterval(interval.current); // Interrompi l'intervallo
         interval.current = null;
@@ -69,7 +69,7 @@ const Order = () => {
         console.log("Fetched Order:", fetchedOrder);
         setMenu(fetchedMenu);
 
-        await ViewModel.storageManager.saveUserAsync(updatedUser);
+        await ViewModel.saveUserAsync(updatedUser);
       }
 
       setOrder(fetchedOrder);
@@ -83,6 +83,7 @@ const Order = () => {
   // Esegui fetchDataFirst solo quando la schermata è focalizzata
   useFocusEffect(
     useCallback(() => {
+      ViewModel.setLastScreen("Order");
       fetchDataFirst().then((fetchedOrder) => {
         console.log("Fetched Order:", fetchedOrder);
         if (fetchedOrder.status === "ON_DELIVERY") {
@@ -116,7 +117,11 @@ const Order = () => {
         </View>
         <View style={styles.card}>
           <Text style={styles.label}>Status:</Text>
-          <Text style={styles.value}>{order.status || "N/A"}</Text>
+          <Text style={styles.value}>{
+                order.status === "ON_DELIVERY" ? "On Delivery" :
+                order.status === "COMPLETED" ? "Completed" :
+                "Not provided"
+              }</Text>
 
           <Text style={styles.label}>Consegna:</Text>
           <Text style={styles.value}>
@@ -158,8 +163,9 @@ const Order = () => {
     );
   }
   return (
-    <View style={styles.container}>
-      <Text>Schermata prima di aver effettuato un ordine</Text>
+    <View style={styles.containerNoOrder}>
+      <Text style={styles.noOrderTitle}>Nessun ordine attivo</Text>
+      <Text style={styles.noOrderText}>Non hai ancora effettuato un ordine, fallo ora!</Text>
     </View>
   );
 };
@@ -210,6 +216,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#ddd",
     borderRadius: 10,
+  },
+  containerNoOrder: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f4f4f4",
+  },
+   noOrderTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  noOrderText: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#666',
+    marginBottom: 30,
   },
 });
 

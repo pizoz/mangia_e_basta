@@ -33,6 +33,7 @@ const MapOrder = ({ deliveryLocation, dronePosition, menuPosition }) => {
       <MapView
         style={styles.map}
         showsUserLocation={false}
+        zoomEnabled={true}
         region={region} // Usa la regione aggiornata
         // onRegionChangeComplete={(newRegion) => setRegion(newRegion)} // Opzionale: aggiorna la regione se l'utente muove la mappa
       >

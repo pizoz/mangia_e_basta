@@ -2,19 +2,24 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import ViewModel from "../model/ViewModel";
 import { useState, useEffect } from "react";
+import LoadingScreen from "./LoadingScreen";
 
 const ConfirmOrder = ({ navigation }) => {
-  const lastMenu = ViewModel.getLastMenu();
+  const [lastMenu, setLastMenu] = useState(null);
   const user = ViewModel.user;
   const locationCoords = ViewModel.getLocationCoords();
 
   const [address, setAddress] = useState(null);
 
   useEffect(() => {
+    ViewModel.lastScreen = "ConfirmOrder";
     const fetchData = async () => {
       const address = await ViewModel.getAddress(locationCoords);
       setAddress(address.formattedAddress);
       const utente = await ViewModel.getUserFromAsyncStorage();
+
+      setLastMenu(await ViewModel.getLastMenu());
+
       ViewModel.user = utente;
     };
     fetchData();
@@ -24,16 +29,16 @@ const ConfirmOrder = ({ navigation }) => {
     try {
       //const lastOrder = await ViewModel.getOrder(user.lastOid, user.sid);
       //if (lastOrder.status === "COMPLETED") {
-        const order = await ViewModel.confirmOrder(
-          lastMenu,
-          user,
-          locationCoords
-        );
-        if (order === undefined) {
-          return;
-        }
-        console.log("Order confirmed");
-        navigation.navigate("Order");
+      const order = await ViewModel.confirmOrder(
+        lastMenu,
+        user,
+        locationCoords
+      );
+      if (order === undefined) {
+        return;
+      }
+      console.log("Order confirmed");
+      navigation.navigate("Order");
       //}
     } catch (error) {
       console.log("ERRORE", error);
@@ -56,7 +61,11 @@ const ConfirmOrder = ({ navigation }) => {
   // if (!address) {
   //   return <LoadingScreen />;
   // }
-
+  if (!user || !lastMenu) {
+    console.log("User: ", user);
+    console.log("LastMenu: ", lastMenu);
+    return <LoadingScreen />;
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Review Your Order</Text>
@@ -85,7 +94,7 @@ const ConfirmOrder = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.cancelButton]}
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate("Menu")}
         >
           <Text style={styles.buttonText}>❌ Cancel</Text>
         </TouchableOpacity>

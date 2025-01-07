@@ -27,7 +27,7 @@ export default class PositionController {
   async getLocationAsync() {
     await this.locationPermissionAsync();
     console.log("getLocationAsync");
-    console.log(this.canUseLocation);
+    console.log("Can use Location: ",this.canUseLocation);
     if (this.canUseLocation) {
       this.location = await Location.getCurrentPositionAsync();
     }

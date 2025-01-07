@@ -13,20 +13,36 @@ import { useNavigation } from "@react-navigation/native";
 import { ArrowLeft } from "lucide-react-native";
 import ViewModel from "../model/ViewModel";
 import LoadingScreen from "./LoadingScreen";
+import { set } from "react-hook-form";
 
 // Get screen dimensions for responsive design
 const { width } = Dimensions.get("window");
 
 const Menu = ({ route }) => {
   const navigation = useNavigation();
-  const { menu } = route.params;
+  const [menu, setMenu] = useState(null);
+  const [user, setUser] = useState(ViewModel.user);
   const [longMenu, setLongMenu] = useState(null);
 
   useEffect(() => {
+
     if (menu) {
-      console.log("\n Menu: ", menu);
-      const user = ViewModel.user;
+      ViewModel.setLastScreen("Menu");
+      console.log("\n Menu: ", menu.name);
+
+
+      ViewModel.getUserFromAsyncStorage().then((result) => {
+        console.log("User from async: ", result);
+        setUser(result);
+        ViewModel.user = result;
+      }
+      ).catch((error) => {
+        console.error("Errore durante il caricamento dell'utente:", error);
+      });
+
+      console.log("User: ", user);
       ViewModel.lastMenu = menu;
+      console.log("Menu VIewModel: ", ViewModel.lastMenu.name);
       ViewModel.getMenuDetail(menu, user)
         .then((result) => {
           setLongMenu(result);
@@ -34,6 +50,10 @@ const Menu = ({ route }) => {
         .catch((error) => {
           console.error("Errore durante il caricamento del menu:", error);
         });
+    } else {
+      ViewModel.getLastMenu().then((result) => {
+        setMenu(result);
+      });
     }
   }, [menu]);
 
@@ -63,13 +83,16 @@ const Menu = ({ route }) => {
     }
   };
 
-  if (longMenu !== null) {
+  if (longMenu !== null && user) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              navigation.navigate("Homepage")
+            }
+            }
           >
             <ArrowLeft color="#333" size={24} />
           </TouchableOpacity>

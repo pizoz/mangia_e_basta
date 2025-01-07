@@ -7,7 +7,7 @@ import LoadingScreen from "./LoadingScreen";
 import { StyleSheet } from "react-native";
 
 const Home = ({ route }) => {
-  const user = route.params.user;
+  const user = route.params.user || ViewModel.user;
   const [address, setAddress] = useState(null);
   const [menus, setMenus] = useState(null);
   const [changed, setChanged] = useState(false);
@@ -31,6 +31,7 @@ const Home = ({ route }) => {
   useEffect(() => {
     console.log(route.params.user);
     initHome();
+    ViewModel.lastScreen = "Home";
   }, [changed]);
 
   if (menus === null) {

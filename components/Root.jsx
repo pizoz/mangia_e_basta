@@ -9,15 +9,18 @@ import ConfirmOrder from "./ConfirmOrder";
 import ProfilePage from "./ProfilePage";
 import Order from "./Order";
 import Form from "./Form";
+import ViewModel from "../model/ViewModel";
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 
 function HomeScreenStack({ route }) {
-  const { user } = route.params;
+  const { user, initialRouteName } = route.params;
   return (
-    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+    <HomeStack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName={initialRouteName}>
       <HomeStack.Screen
         name="Homepage"
         component={HomeScreen}
@@ -30,9 +33,9 @@ function HomeScreenStack({ route }) {
 }
 
 function ProfileScreenStack({ route }) {
-  const { user } = route.params;
+  const { user, initialRouteName } = route.params;
   return (
-    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+    <ProfileStack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRouteName}>
       <ProfileStack.Screen
         name="ProfilePage"
         component={ProfilePage}
@@ -43,11 +46,13 @@ function ProfileScreenStack({ route }) {
   );
 }
 
-const Root = ({ user }) => {
+const Root = ({ user, lastScreen }) => {
+  const initialRouteNames = ViewModel.getInitialRouteNames(lastScreen);
+  
   return (
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName="Home"
+        initialRouteName={initialRouteNames.get("Root")}
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarHideOnKeyboard: true,
@@ -75,20 +80,26 @@ const Root = ({ user }) => {
           },
           tabBarActiveTintColor: '#4a90e2',
           tabBarInactiveTintColor: 'gray',
-          
+
         })}
       >
         <Tab.Screen
           name="Home"
           component={HomeScreenStack}
-          initialParams={{ user: user }}
+          initialParams={{ user: user, initialRouteName: initialRouteNames.get("Home") }}
           options={{ popToTopOnBlur: true }}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              e.preventDefault();
+              navigation.navigate('Home', { screen: 'Homepage' });
+            },
+          })}
         />
         <Tab.Screen name="Order" component={Order} />
         <Tab.Screen
           name="Profile"
           component={ProfileScreenStack}
-          initialParams={{ user: user }}
+          initialParams={{ user: user, initialRouteName: initialRouteNames.get("Profile") }}
           options={{ popToTopOnBlur: true }}
           listeners={({ navigation }) => ({
             tabPress: (e) => {

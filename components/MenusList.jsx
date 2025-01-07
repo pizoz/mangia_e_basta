@@ -17,6 +17,7 @@ const MenusList = ({ menus = [], user, setChanged }) => {
   const navigation = useNavigation();
   
   const handleMenuDetails = (item) => {
+    ViewModel.lastMenu = item;
     navigation.navigate("Menu", { menu: item, user: user });
   };
 
@@ -26,7 +27,7 @@ const MenusList = ({ menus = [], user, setChanged }) => {
     setRefreshing(false);
     setChanged((prev) => !prev);
   };
-  if (menus === null) {
+  if (menus === null ) {
     return (
       <LoadingScreen />
     )
