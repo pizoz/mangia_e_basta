@@ -79,8 +79,8 @@ const Form = ({ route }) => {
       }
     }
 
-    if (newUser.cardExpireYear && (!/^\d{4}$/.test(newUser.cardExpireYear))) {
-      errors.push('Card Expire Year must be exactly 4 digits');
+    if (newUser.cardExpireYear && (!/^\d{4}$/.test(newUser.cardExpireYear)) && newUser.cardExpireYear < new Date().getFullYear()) {
+      errors.push('Card Expire Year must be exactly 4 digits. The card cannot be expired');
     }
 
     if (newUser.cardCVV && (!/^\d{3}$/.test(newUser.cardCVV))) {
