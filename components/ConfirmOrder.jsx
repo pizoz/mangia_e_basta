@@ -27,8 +27,7 @@ const ConfirmOrder = ({ navigation }) => {
 
   const handleConfirmOrder = async () => {
     try {
-      //const lastOrder = await ViewModel.getOrder(user.lastOid, user.sid);
-      //if (lastOrder.status === "COMPLETED") {
+    
       const order = await ViewModel.confirmOrder(
         lastMenu,
         user,
@@ -39,7 +38,6 @@ const ConfirmOrder = ({ navigation }) => {
       }
       console.log("Order confirmed");
       navigation.navigate("Order");
-      //}
     } catch (error) {
       console.log("ERRORE", error);
       if (error.status === 409) {
@@ -49,7 +47,17 @@ const ConfirmOrder = ({ navigation }) => {
           [
             {
               text: "OK",
-              onPress: () => navigation.goBack(),
+            },
+          ],
+          { cancelable: true }
+        );
+      } else {
+        Alert.alert(
+          "Carta non valida!",
+          "",
+          [
+            {
+              text: "OK",
             },
           ],
           { cancelable: true }
