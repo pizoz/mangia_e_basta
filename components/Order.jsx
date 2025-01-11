@@ -79,11 +79,13 @@ const Order = () => {
       console.error("Error fetching initial data:", error);
     }
   };
-
+  const savePage = async () => {
+    await ViewModel.saveLastScreenAsync("Order");
+  };
   // Esegui fetchDataFirst solo quando la schermata è focalizzata
   useFocusEffect(
     useCallback(() => {
-      ViewModel.setLastScreen("Order");
+      savePage();
       fetchDataFirst().then((fetchedOrder) => {
         console.log("Fetched Order:", fetchedOrder);
         if (fetchedOrder.status === "ON_DELIVERY") {
@@ -116,10 +118,10 @@ const Order = () => {
           <Text style={styles.headerText}>Dettagli Ordine</Text>
         </View>
         <View style={styles.card}>
-          <Text style={styles.label}>Status:</Text>
+          <Text style={styles.label}>Stato dell'ordine:</Text>
           <Text style={styles.value}>{
-                order.status === "ON_DELIVERY" ? "On Delivery" :
-                order.status === "COMPLETED" ? "Completed" :
+                order.status === "ON_DELIVERY" ? "In Consegna" :
+                order.status === "COMPLETED" ? "Consegnato" :
                 "Not provided"
               }</Text>
 
@@ -130,7 +132,7 @@ const Order = () => {
               : ViewModel.fromTimeStampToDayAndTime(order.deliveryTimestamp)}
           </Text>
 
-          <Text style={styles.label}>Quanto manca:</Text>
+          <Text style={styles.label}>Tempo rimanente:</Text>
           <Text style={styles.value}>
             {order.status === "ON_DELIVERY"
               ? ViewModel.getTimeRemaining(order.expectedDeliveryTimestamp)

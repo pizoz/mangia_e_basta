@@ -386,11 +386,11 @@ class ViewModel {
   static setLastMenu(menu) {
     this.lastMenu = menu;
   }
-  static async saveLastScreenAsync() {
+  static async saveLastScreenAsync(screen) {
     console.log("saveLastScreenAsync");
     console.log(this.lastScreen);
     console.log(this.lastMenu);
-    await this.storageManager.saveLastScreenAsync(this.lastScreen, this.lastMenu);
+    await this.storageManager.saveLastScreenAsync(screen, this.lastMenu);
 
 
   }

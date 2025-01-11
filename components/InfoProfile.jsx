@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import ViewModel from '../model/ViewModel';
-import LoadingScreen from './LoadingScreen';
+import React, { useState, useEffect } from "react";
+import { useNavigation } from "@react-navigation/native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Animated,
+} from "react-native";
+import { useIsFocused } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import ViewModel from "../model/ViewModel";
+import LoadingScreen from "./LoadingScreen";
 
 const InfoProfile = () => {
   const [user, setUser] = useState(ViewModel.user);
@@ -18,7 +25,7 @@ const InfoProfile = () => {
   const fetchUser = async () => {
     try {
       const res = await ViewModel.storageManager.getUserAsync();
-      console.log("res:  ",res);
+      console.log("res:  ", res);
       let order = null;
       let menu = null;
       if (res.lastOid != null) {
@@ -48,55 +55,83 @@ const InfoProfile = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <LinearGradient
-        colors={['#4a90e2', '#63a4ff']}
-        style={styles.header}
-      >
+      <LinearGradient colors={["#4a90e2", "#63a4ff"]} style={styles.header}>
         <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>{'👤'}</Text>
+          <Text style={styles.avatarText}>{"👤"}</Text>
         </View>
       </LinearGradient>
 
       <View style={styles.content}>
-        <InfoSection title="Personal Information">
-          <InfoItem icon="person" label="First Name" value={user.firstName || "Not provided"} />
-          <InfoItem icon="people" label="Last Name" value={user.lastName || "Not provided"} />
-        </InfoSection>
-
-        <InfoSection title="Payment Information">
-          <InfoItem icon="card" label="Card Holder" value={user.cardFullName || "Not provided"} />
-          <InfoItem icon="card" label="Card Number" value={user.cardNumber ? `**** **** **** ${user.cardNumber.slice(-4)}` : "Not provided"} />
-          <InfoItem 
-            icon="calendar" 
-            label="Expiration" 
-            value={
-              user.cardExpireMonth && user.cardExpireYear
-                ? `${user.cardExpireMonth.toString().padStart(2, '0')}/${user.cardExpireYear.toString().slice(-2)}`
-                : "Not provided"
-            } 
+        <InfoSection title="Informazioni Personali">
+          <InfoItem
+            icon="person"
+            label="Nome"
+            value={user.firstName || "Sconosciuto"}
+          />
+          <InfoItem
+            icon="people"
+            label="Cognome"
+            value={user.lastName || "Sconosciuto"}
           />
         </InfoSection>
 
-        <InfoSection title="Order Information">
-          {order && menu ? (
-            <>
-              <InfoItem icon="restaurant" label="Last Meal" value={menu.name || "No orders yet"} />
-              <InfoItem icon="information-circle" label="Order Status" value={
-                order.status === "ON_DELIVERY" ? "On Delivery" :
-                order.status === "COMPLETED" ? "Completed" :
-                "Not provided"
-              } />
-            </>
-          ) : (
-            <InfoItem icon="restaurant" label="Last Meal" value="No orders yet" />
-          )}
+        <InfoSection title="Informazioni di Pagamento">
+          <InfoItem
+            icon="card"
+            label="Intestatario"
+            value={user.cardFullName || "Sconosciuto"}
+          />
+          <InfoItem
+            icon="card"
+            label="Numero di carta"
+            value={
+              user.cardNumber
+                ? `**** **** **** ${user.cardNumber.slice(-4)}`
+                : "Sconosciuto"
+            }
+          />
+          <InfoItem
+            icon="calendar"
+            label="Scadenza"
+            value={
+              user.cardExpireMonth && user.cardExpireYear
+                ? `${user.cardExpireMonth
+                    .toString()
+                    .padStart(2, "0")}/${user.cardExpireYear
+                    .toString()
+                    .slice(-2)}`
+                : "Sconosciuta"
+            }
+          />
         </InfoSection>
+        {order && menu ? (
+          <>
+            <InfoSection title="Informazioni sull'Ordine">
+              <InfoItem
+                icon="restaurant"
+                label="Ultimo Ordine"
+                value={menu.name || "Nessun ordine"}
+              />
+              <InfoItem
+                icon="information-circle"
+                label="Stato dell'ordine"
+                value={
+                  order.status === "ON_DELIVERY"
+                    ? "In Consegna"
+                    : order.status === "COMPLETED"
+                    ? "Consegnato"
+                    : "Not provided"
+                }
+              />
+            </InfoSection>
+          </>
+        ) : null}
 
         <TouchableOpacity
           style={styles.editButton}
           onPress={() => navigation.navigate("Form", { before: "ProfilePage" })}
         >
-          <Text style={styles.editButtonText}>Edit Profile</Text>
+          <Text style={styles.editButtonText}>Modifica il profilo</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -113,7 +148,12 @@ const InfoSection = ({ title, children }) => (
 const InfoItem = ({ icon, label, value }) => (
   <View style={styles.infoItem}>
     <View style={styles.infoItemLeft}>
-      <Ionicons name={icon} size={24} color="#4a90e2" style={styles.infoItemIcon} />
+      <Ionicons
+        name={icon}
+        size={24}
+        color="#4a90e2"
+        style={styles.infoItemIcon}
+      />
       <Text style={styles.label}>{label}</Text>
     </View>
     <Text style={styles.value}>{value}</Text>
@@ -123,41 +163,41 @@ const InfoItem = ({ icon, label, value }) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
   },
   header: {
     height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   avatarContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 10,
   },
   avatarText: {
     fontSize: 40,
-    color: '#ffffff',
-    fontWeight: 'bold',
+    color: "#ffffff",
+    fontWeight: "bold",
   },
   headerName: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff',
+    fontWeight: "bold",
+    color: "#ffffff",
   },
   content: {
     padding: 20,
   },
   section: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 10,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -165,44 +205,44 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 15,
-    color: '#333',
+    color: "#333",
   },
   infoItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 15,
   },
   infoItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   infoItemIcon: {
     marginRight: 10,
   },
   label: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
   },
   value: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
+    fontWeight: "500",
+    color: "#333",
   },
   editButton: {
-    backgroundColor: '#4a90e2',
+    backgroundColor: "#4a90e2",
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 25,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
   },
   editButtonText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 

@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
     // make it stay at the bottom
     position: "absolute",
     bottom: 40,
+    width:350,
     backgroundColor: "#3498db",
     paddingVertical: 15,
     paddingHorizontal: 60,
@@ -178,9 +179,17 @@ const styles = StyleSheet.create({
   buttonSecond: {
     backgroundColor: "#3498db",
     marginHorizontal: 24,
-    marginBottom: 32,
+    marginBottom: 90,
     paddingVertical: 16,
-    borderRadius: 8,
+    borderRadius: 25,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   buttonTextSecond: {
     color: "#fff",

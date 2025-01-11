@@ -18,7 +18,6 @@ export default function App() {
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (nextAppState.match(/inactive|background/) && user) {
-        ViewModel.saveLastScreenAsync();
         ViewModel.saveUserAsync(user);
       }
     });

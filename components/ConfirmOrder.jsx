@@ -12,8 +12,8 @@ const ConfirmOrder = ({ navigation }) => {
   const [address, setAddress] = useState(null);
 
   useEffect(() => {
-    ViewModel.lastScreen = "ConfirmOrder";
     const fetchData = async () => {
+      await ViewModel.saveLastScreenAsync("ConfirmOrder");
       const address = await ViewModel.getAddress(locationCoords);
       setAddress(address.formattedAddress);
       const utente = await ViewModel.getUserFromAsyncStorage();
@@ -89,7 +89,7 @@ const ConfirmOrder = ({ navigation }) => {
           <Text style={styles.value}>{lastMenu.name}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>📍 Location:</Text>
+          <Text style={styles.label}>📍 Posizione:</Text>
           <Text style={styles.value}>{address}</Text>
         </View>
       </View>
@@ -98,13 +98,13 @@ const ConfirmOrder = ({ navigation }) => {
           style={[styles.button, styles.confirmButton]}
           onPress={handleConfirmOrder}
         >
-          <Text style={styles.buttonText}>✅ Confirm My Order</Text>
+          <Text style={styles.buttonText}>✅ Conferma l'Ordine</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.cancelButton]}
           onPress={() => navigation.navigate("Menu")}
         >
-          <Text style={styles.buttonText}>❌ Cancel</Text>
+          <Text style={styles.buttonText}>❌ Cancella</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -24,13 +24,14 @@ const Menu = ({ route }) => {
   const [user, setUser] = useState(ViewModel.user);
   const [longMenu, setLongMenu] = useState(null);
 
+  const savePage = async () => {
+    await ViewModel.saveLastScreenAsync("Menu");
+  };
   useEffect(() => {
-
+    
     if (menu) {
-      ViewModel.setLastScreen("Menu");
+      savePage();
       console.log("\n Menu: ", menu.name);
-
-
       ViewModel.getUserFromAsyncStorage().then((result) => {
         console.log("User from async: ", result);
         setUser(result);
@@ -43,6 +44,7 @@ const Menu = ({ route }) => {
       console.log("User: ", user);
       ViewModel.lastMenu = menu;
       console.log("Menu VIewModel: ", ViewModel.lastMenu.name);
+      
       ViewModel.getMenuDetail(menu, user)
         .then((result) => {
           setLongMenu(result);
@@ -114,7 +116,7 @@ const Menu = ({ route }) => {
             Tempo di consegna:{" "}
             {ViewModel.getDeliveryTime(longMenu.deliveryTime)}
           </Text>
-          <Button title={"Ordina"} onPress={onClickOnButton} />
+          <Button style={styles.marginTopButton}  title={"Ordina"} onPress={onClickOnButton} />
         </View>
       </View>
     );
@@ -123,6 +125,9 @@ const Menu = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
+  marginTopButton: {
+    marginTop: 10,
+  },
   container: {
     flex: 1,
     padding: 16,
@@ -184,6 +189,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#ff7f50",
     fontWeight: "600",
+    marginBottom: 8,
   },
   header: {
     flexDirection: "row",

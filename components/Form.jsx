@@ -20,9 +20,6 @@ const Form = ({ route }) => {
   const { before } = route.params != null ? route.params : { before: 'ProfilePage' };
   const user = ViewModel.user;
   const navigation = useNavigation();
-
-
-
   const [newUser, setNewUser] = useState({
     firstName: '',
     lastName: '',
@@ -43,48 +40,52 @@ const Form = ({ route }) => {
 
     if (newUser.firstName) {
       if (newUser.firstName.length > 15) {
-        errors.push('First Name must be 15 characters or less');
+        errors.push('Il nome deve essere di 15 caratteri o meno');
       }
       if (!nameRegex.test(newUser.firstName)) {
-        errors.push('First Name must contain only letters and spaces');
+        errors.push('Il nome deve contenere solo lettere e spazi');
       }
     }
 
     if (newUser.lastName) {
       if (newUser.lastName.length > 15) {
-        errors.push('Last Name must be 15 characters or less');
+        errors.push('Il cognome deve essere di 15 caratteri o meno');
       }
       if (!nameRegex.test(newUser.lastName)) {
-        errors.push('Last Name must contain only letters and spaces');
+        errors.push('Il cognome deve contenere solo lettere e spazi');
       }
     }
 
     if (newUser.cardFullName) {
       if (newUser.cardFullName.length > 31) {
-        errors.push('Card Full Name must be 31 characters or less');
+        errors.push('Il nome sulla carta deve essere di 31 caratteri o meno');
       }
       if (!nameRegex.test(newUser.cardFullName)) {
-        errors.push('Card Full Name must contain only letters and spaces');
+        errors.push('Il nome sulla carta deve contenere solo lettere e spazi');
       }
     }
 
     if (newUser.cardNumber && (!/^\d+$/.test(newUser.cardNumber) || newUser.cardNumber.length !== 16)) {
-      errors.push('Card Number must be exactly 16 digits');
+      errors.push('Il numero della carta deve essere esattamente di 16 cifre');
     }
 
     if (newUser.cardExpireMonth) {
       const month = parseInt(newUser.cardExpireMonth, 10);
       if (isNaN(month) || month < 1 || month > 12) {
-        errors.push('Card Expire Month must be between 1 and 12');
+        errors.push('Il mese di scadenza della carta deve essere un numero tra 1 e 12');
       }
     }
 
-    if (newUser.cardExpireYear && (!/^\d{4}$/.test(newUser.cardExpireYear)) && newUser.cardExpireYear < new Date().getFullYear()) {
-      errors.push('Card Expire Year must be exactly 4 digits. The card cannot be expired');
+    if (newUser.cardExpireYear && (!/^\d{4}$/.test(newUser.cardExpireYear)) ) {
+      errors.push("L'anno di scadenza della carta deve essere esattamente di 4 cifre");
     }
 
+    if (newUser.cardExpireYear && parseInt(newUser.cardExpireYear, 10) < new Date().getFullYear()) {
+
+      errors.push('Non puoi usare una carta scaduta!');
+    }
     if (newUser.cardCVV && (!/^\d{3}$/.test(newUser.cardCVV))) {
-      errors.push('Card CVV must be exactly 3 digits');
+      errors.push('Il CVV della carta deve essere esattamente di 3 cifre');
     }
 
     return errors;
@@ -151,8 +152,12 @@ const Form = ({ route }) => {
       />
     </View>
   );
+  const savePage = async () => {
+    await ViewModel.saveLastScreenAsync("Form");
+  };
+
   useEffect(() => {
-    ViewModel.lastScreen = 'Form';
+    savePage();
   }, []);
   return (
     <KeyboardAvoidingView
@@ -164,7 +169,7 @@ const Form = ({ route }) => {
           colors={['#4a90e2', '#63a4ff']}
           style={styles.formContainer}
         >
-          <Text style={styles.title}>Update Profile</Text>
+          <Text style={styles.title}>Modifica Profilo</Text>
           {renderInput('firstName', 'First Name', 'person', 'default')}
           {renderInput('lastName', 'Last Name', 'people', 'default')}
           {renderInput('cardFullName', 'Card Full Name', 'card', 'default')}
@@ -177,7 +182,7 @@ const Form = ({ route }) => {
             style={styles.button}
             onPress={() => onClickOnButton(before === 'ProfilePage' ? 'Info' : 'Home')}
           >
-            <Text style={styles.buttonText}>Save</Text>
+            <Text style={styles.buttonText}>Salva</Text>
           </TouchableOpacity>
         </LinearGradient>
       </ScrollView>
