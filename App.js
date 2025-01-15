@@ -15,21 +15,12 @@ export default function App() {
   const [lastScreen, setLastScreen] = useState(null);
 
   useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextAppState) => {
-      if (nextAppState.match(/inactive|background/) && user) {
-        ViewModel.saveUserAsync(user);
-      }
-    });
-
     ViewModel.initApp().then((res) => {
       setFirstRun(res.firstRun);
       setUser(res.user);
       setLocation(res.location);
       setLastScreen(res.lastScreen);
     });
-    return () => {
-      subscription.remove();
-    };
   }, [changed]);
 
   const handleChangePress = () => {
