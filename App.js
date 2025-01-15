@@ -58,8 +58,8 @@ export default function App() {
     } else {
       return (
         <View style={styles.container}>
-          <Text>Accetta la posizione</Text>
-          <Button onPress={handleChangePress} title="Fatto!"></Button>
+          <Text style={styles.text}>Accetta la posizione</Text>
+          <Button onPress={handleChangePress} title="Fatto!" style={styles.button}></Button>
         </View>
       )
     }
@@ -76,5 +76,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-  }
+  },
+  text: {
+    fontSize: 18,
+    textAlign: "center",
+    marginBottom: 20, 
+  },
+  button: {
+    marginTop: 10,
+  },
 });

@@ -13,6 +13,7 @@ import LoadingScreen from "./LoadingScreen";
 const { width, height } = Dimensions.get("window");
 
 const FirstComponent = ({ setChanged, setUser}) => {
+
   const [screen, setScreen] = useState("FirstScreen");
 
   const onSubmit = async () => {
@@ -20,6 +21,7 @@ const FirstComponent = ({ setChanged, setUser}) => {
     setUser(user);
     await ViewModel.positionController.getLocationAsync();
     setChanged(true);
+
   };
 
   if (screen === "FirstScreen") {
@@ -100,7 +102,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
-    // make it stay at the bottom
     position: "absolute",
     bottom: 40,
     width:350,

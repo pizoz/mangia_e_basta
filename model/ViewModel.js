@@ -390,6 +390,7 @@ class ViewModel {
     console.log("saveLastScreenAsync");
     console.log(this.lastScreen);
     console.log(this.lastMenu);
+    await this.storageManager.saveUserAsync(this.user);
     await this.storageManager.saveLastScreenAsync(screen, this.lastMenu);
 
 
