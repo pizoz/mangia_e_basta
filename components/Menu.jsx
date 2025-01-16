@@ -18,20 +18,25 @@ import { set } from "react-hook-form";
 // Get screen dimensions for responsive design
 const { width } = Dimensions.get("window");
 
+// Menu è il componente che mostra i dettagli di un menu
 const Menu = ({ route }) => {
   const navigation = useNavigation();
   const [menu, setMenu] = useState(null);
   const [user, setUser] = useState(ViewModel.user);
   const [longMenu, setLongMenu] = useState(null);
 
+  // funzione per salvare la schermata visitata in async storage e l'ultimo menu visitato
   const savePage = async () => {
     await ViewModel.saveLastScreenAsync("Menu");
   };
+
+  // inizializza il menu
   useEffect(() => {
-    
     if (menu) {
+      // salva la schermata visitata in async storage e l'ultimo menu visitato
       savePage();
       console.log("\n Menu: ", menu.name);
+      // recupera l'utente da async storage
       ViewModel.getUserFromAsyncStorage().then((result) => {
         console.log("User from async: ", result);
         setUser(result);
@@ -44,7 +49,7 @@ const Menu = ({ route }) => {
       console.log("User: ", user);
       ViewModel.lastMenu = menu;
       console.log("Menu VIewModel: ", ViewModel.lastMenu.name);
-      
+      // recupera i dettagli del menu con longDescription e immagine
       ViewModel.getMenuDetail(menu, user)
         .then((result) => {
           setLongMenu(result);
@@ -53,15 +58,18 @@ const Menu = ({ route }) => {
           console.error("Errore durante il caricamento del menu:", error);
         });
     } else {
+      // recupera l'ultimo menu visitato
       ViewModel.getLastMenu().then((result) => {
         setMenu(result);
       });
     }
   }, [menu]);
 
+  // funzione per gestire il click sul button "Ordina"
   const onClickOnButton = () => {
     const user = ViewModel.user;
     console.log("Side: ", user.sid);
+    // se l'utente non ha completato il profilo, mostro un alert
     if (!ViewModel.isValidUser(user)) {
       Alert.alert(
         "Profilo non completo!",
@@ -70,6 +78,7 @@ const Menu = ({ route }) => {
           {
             text: "Completa il profilo",
             onPress: () =>
+              // naviga alla schermata Form dello stack Profile per completare il profilo
               navigation.navigate("Profile", {
                 screen: "Form",
                 params: { user: user, before: "CompletaProfilo" },
@@ -81,6 +90,7 @@ const Menu = ({ route }) => {
         { cancelable: true }
       );
     } else {
+      // naviga alla schermata ConfirmOrder
       navigation.navigate("ConfirmOrder");
     }
   };
@@ -121,6 +131,8 @@ const Menu = ({ route }) => {
       </View>
     );
   }
+
+  // se non ho il menu, mostro il componente di caricamento
   return <LoadingScreen />;
 };
 

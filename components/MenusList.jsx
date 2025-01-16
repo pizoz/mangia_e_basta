@@ -12,26 +12,37 @@ import { useState } from "react";
 import ViewModel from "../model/ViewModel";
 import LoadingScreen from "./LoadingScreen";
 
+// MenusList è il componente che mostra la lista dei menu
 const MenusList = ({ menus = [], user, setChanged }) => {
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
   
+  // funzione per gestire il click su un menu, salva l'ultimo menu cliccato e naviga alla schermata Menu, passando il menu e l'utente
   const handleMenuDetails = (item) => {
     ViewModel.lastMenu = item;
     navigation.navigate("Menu", { menu: item, user: user });
   };
 
+  // funzione per aggiornare la lista dei menu
   const onRefresh = async () => {
+    // setto refreshing a true per mostrare il componente di caricamento
     setRefreshing(true);
+    // recupero la posizione attuale
     await ViewModel.getLocation();
+    // setto refreshing a false per nascondere il componente di caricamento
     setRefreshing(false);
+    // setto changed a true per aggiornare la home
     setChanged((prev) => !prev);
   };
+
+  // se non ho i menu, mostro il componente di caricamento
   if (menus === null ) {
     return (
       <LoadingScreen />
     )
   }
+
+  // mostro la lista dei menu
   return (
     <FlatList
       data={menus}

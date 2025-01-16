@@ -42,14 +42,17 @@ export default class StorageManager {
     const result = await this.db.getAllAsync(query);
     return result;
   }
+
+  // recupera l'immagine dal database
   async getImageFromDB(mid) {
     console.log("getImageFromDB");
     const query = "SELECT * FROM menuImages WHERE mid = ?";
     const result = await this.db.getFirstAsync(query, mid);
     return result;
   }
-  async saveImageInDB(mid, imageVersion, image, alreadyExists) {
 
+  // salva l'immagine nel database
+  async saveImageInDB(mid, imageVersion, image, alreadyExists) {
     console.log("saveImageInDB");
     if (alreadyExists) {
       const query = "UPDATE menuImages SET imageVersion = ?, image = ? WHERE mid = ?";
@@ -102,16 +105,14 @@ export default class StorageManager {
     await AsyncStorage.removeItem("lastMenu");
   }
   
+  // salva l'ultima schermata visitata e l'ultimo menu visitato in async storage
   async saveLastScreenAsync(screen, lastMenu) {
     if (lastMenu) {
       await AsyncStorage.setItem("lastMenu", JSON.stringify(lastMenu));
     }
     if (screen) {
-
       await AsyncStorage.setItem("lastScreen", screen);
     }
-
-    
   }
 
   // restituisce un oggetto con l'ultima schermata visitata e l'ultimo menu visitato
@@ -123,7 +124,8 @@ export default class StorageManager {
 
     return { screen, lastMenu: JSON.parse(lastMenu) };
   }
-  
+
+  // recupera l'ultimo menu visitato da async storage
   async getLastMenuAsync() {
     console.log("getLastMenuAsync");
     const lastMenu = await AsyncStorage.getItem("lastMenu");

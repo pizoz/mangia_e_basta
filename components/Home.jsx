@@ -6,21 +6,29 @@ import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
 import { StyleSheet } from "react-native";
 
+// Home è il componente che mostra la lista dei menu
 const Home = ({ route }) => {
   const user = route.params.user || ViewModel.user;
   const [address, setAddress] = useState(null);
   const [menus, setMenus] = useState(null);
   const [changed, setChanged] = useState(false);
+
+  // setta tutte le variabili per la home e salva come ultima schermata visitata Home
   const initHome = async () => {
     try {
+      // salva la schermata visitata in async storage
       await ViewModel.saveLastScreenAsync("Home");
       console.log(user)
+      // recupera utente da async storage
       const userFromasync = await ViewModel.getUserFromAsyncStorage();
       console.log("USer from Async: ",userFromasync);
+      // recupera i menu con immagini agiornate 
       const menu = await ViewModel.getMenus(user.sid);
       setMenus(menu);
+      // recupera l'indirizzo dell'utente 
       const address = await ViewModel.getAddress();
       setAddress(address);
+
       console.log(address);
       console.log(userFromasync);
     } catch (error) {
@@ -28,14 +36,17 @@ const Home = ({ route }) => {
     }
   }
 
+  // inizializza la home
   useEffect(() => {
     console.log(route.params.user);
     initHome();
   }, [changed]);
 
+  // se non ho i menu, mostro il componente di caricamento
   if (menus === null) {
     return <LoadingScreen />;
   }
+  // mostro la lista dei menu
   return (
     <View style={{paddingTop: "60"}}>
       {/*<View style={styles.address}>

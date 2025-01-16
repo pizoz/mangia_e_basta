@@ -54,7 +54,6 @@ class ViewModel {
       console.log(error);
     }
     // Se non lo trovo, chiedo al server di crearlo e lo salvo nell'AsyncStorage
-    //
     if (!user) {
       const newUser = await CommunicationController.createUser();
       const fullUser = await CommunicationController.getUser(
@@ -79,7 +78,7 @@ class ViewModel {
       return user;
     }
   }
-  // Restituisce un menu senza immagine
+  // Restituisce un menu senza immagine ma con longDesc
   static async GetMenu(mid, sid) {
     await this.initViewModel(false);
     console.log(
@@ -99,13 +98,16 @@ class ViewModel {
     }
     return null;
   }
+
   // Restituisce il PositionController
   static async getPositionController() {
     await this.initViewModel(false);
     return this.positionController;
   }
-  // Restituisce l'immagine aggiornata di un menu. Se non la trova nel db o quella trovata è vecchia, la scarica dal server e la salva nel db
-  //  alla fine dell'esecuzione restituisce l'immagine in base64 e sarà salvata nel db
+
+  // Restituisce l'immagine aggiornata di un menu. 
+  // Se non la trova nel db o quella trovata è vecchia, la scarica dal server e la salva nel db
+  // alla fine dell'esecuzione restituisce l'immagine in base64 e sarà salvata nel db
   static async getUpdatedImage(mid, sid, lastVersion) {
     console.log("getUpdatedImage");
     // se Db non è aperto lo apro
@@ -122,7 +124,9 @@ class ViewModel {
     // se non la trovo la scarico dal server e la salvo nel db
     if (!savedImage) {
       console.log("No Image in DB");
+      // scarico l'immagine dal server
       image = await CommunicationController.GetImage(mid, sid);
+      // salvo l'immagine nel db
       await this.storageManager.saveImageInDB(
         mid,
         lastVersion,
@@ -135,8 +139,9 @@ class ViewModel {
     // se la trovo, ma la versione non è quella aggiornata allora la scarico dal server e la salvo nel db
     if (savedImage.imageVersion !== lastVersion) {
       console.log("Found old Image in DB");
+      // scarico l'immagine dal server
       image = await CommunicationController.GetImage(mid, sid);
-
+      // salvo l'immagine nel db
       await this.storageManager.saveImageInDB(
         mid,
         lastVersion,
@@ -150,24 +155,31 @@ class ViewModel {
   }
   // Restituisce il menu con immagine e longDesc, pronto per essere visualizzato in MenuDetail
   static async getMenuDetail(menu, sid) {
+    // se Db non è aperto lo apro
     await this.initViewModel(true);
-
+    // recupero dettagli del menu con longDesc
     const newmenu = await this.GetMenu(menu.mid, sid);
     if (!newmenu) {
       return null;
     }
+    // aggiungo longDesc al menu
     menu = { ...menu, ...newmenu };
-    //restituisce menu, con immagine e longDesc
+    //restituisce menu 
     this.lastMenu = menu;
     return menu;
   }
+
+
   // Restituisce il menu con l'immagine aggiornata, pronto per essere visualizzato in HomePage
   static async getHomePageMenu(menu, sid) {
+    // recupero immagine aggiornata del menu
     const image = await this.getUpdatedImage(menu.mid, sid, menu.imageVersion);
+    // setto l'immagine del menu (aggiungo il prefisso data:image/png;base64,)
     menu.image = `data:image/png;base64,${image}`;
     //questo menu ha info menu e immagine (no longdesc)
     return menu;
   }
+
   // Resetta il database e l'utente dall'AsyncStorage
   static async reset() {
     // elimina il database e l'utente dall'AsyncStorage
@@ -175,7 +187,7 @@ class ViewModel {
     await this.storageManager.deleteDB();
     await this.storageManager.deleteUserAsync();
   }
-  // Restituisce i 20 menu più vicini alla posizione passata con l'immagini aggiornate
+  // Restituisce i 20 menu più vicini alla posizione passata con le immagini aggiornate
   static async getMenus(sid) {
     console.log("getMenus");
     // restituisce i 20 menu più vicini alla posizione passata
@@ -185,6 +197,7 @@ class ViewModel {
       this.positionController.location.coords.longitude,
       sid
     );
+    // per ogni menu restituito, restituisce il menu con l'immagine aggiornata
     for (let menu of menus) {
       menu = await this.getHomePageMenu(menu, sid);
     }
@@ -241,16 +254,21 @@ class ViewModel {
     }
   }
   
+  // restituisce il menu con l'immagine aggiornata, pronto per essere visualizzato in MenuDetail (con longDesc)
   static async getMenuDetail(menu, user) {
+    // recupera il menu con longDesc
     let newMenu = await CommunicationController.GetMenu(
       menu.mid,
       user.sid,
       this.positionController.location.coords.latitude,
       this.positionController.location.coords.longitude
     );
+    // aggiunge longDesc al menu
     menu = { ...menu, ...newMenu };
     return menu;
   }
+
+  // Restituisce l'indirizzo della posizione attuale utilizzando la funzione reverseGeocodeAsync di Location
   static async getAddress() {
     const address = await Location.reverseGeocodeAsync({
       latitude: this.positionController.location.coords.latitude,
@@ -258,6 +276,8 @@ class ViewModel {
     });
     return address[0];
   }
+
+  // Restituisce posizione attuale utilizzando la funzione getCurrentPositionAsync di Location
   static async getLocation() {
     await this.positionController.getLocationAsync();
   }
@@ -279,6 +299,8 @@ class ViewModel {
     }
     return string;
   }
+
+  // controlla che l'utente sia valido, cioè che abbia tutti i campi completi
   static isValidUser(user) {
     if (!user) {
       return false;
@@ -298,6 +320,8 @@ class ViewModel {
     }
     return true;
   }
+
+  // restituisce l'ultimo menu visitato (con immagine) dallo storage
   static async getLastMenu() {
     if (!this.lastMenu) {
       const newMenu = await this.storageManager.getLastMenuAsync();

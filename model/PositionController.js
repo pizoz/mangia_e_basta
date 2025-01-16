@@ -30,7 +30,7 @@ export default class PositionController {
     }
   }
 
-  // Funzione per ottenere la posizione attuale, se ci sono i permessi, chiede i permessi, se ci sono calcola la posizione
+  // Funzione per ottenere la posizione attuale (la calcola), se ci sono i permessi, se non ci sono li chiede,
   async getLocationAsync() {
     await this.locationPermissionAsync();
     console.log("getLocationAsync");

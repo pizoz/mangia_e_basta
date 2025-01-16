@@ -19,7 +19,7 @@ const FirstComponent = ({ setChanged, setUser}) => {
   const [screen, setScreen] = useState("FirstScreen");
   // Funzione per gestire il button "Continua"
   const onSubmit = async () => {
-    // setto user con i dati dell'utente
+    // setto user con i dati dell'utente, se non c'è l'utente, lo crea e lo salva in async storage
     const user = await ViewModel.getUserFromAsyncStorage();
     setUser(user);
     // calcola la posizione attuale e la salva in location se ci sono i permessi
@@ -77,7 +77,7 @@ const FirstComponent = ({ setChanged, setUser}) => {
       </SafeAreaView>
     );
   }
-  
+
   // se screen non è nè FirstScreen nè SecondScreen, mostro il componente di caricamento
   return (
     <LoadingScreen/>

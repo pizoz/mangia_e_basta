@@ -16,10 +16,14 @@ import { Ionicons } from '@expo/vector-icons';
 import CommunicationController from '../model/CommunicationController';
 import ViewModel from '../model/ViewModel';
 
+// Form è il componente che permette all'utente di modificare il proprio profilo
 const Form = ({ route }) => {
+  // recupero la schermata da cui proviene l'utente, di default è ProfilePage 
   const { before } = route.params != null ? route.params : { before: 'ProfilePage' };
   const user = ViewModel.user;
   const navigation = useNavigation();
+
+  //stato iniziale della form (vuoto)
   const [newUser, setNewUser] = useState({
     firstName: '',
     lastName: '',
@@ -30,14 +34,19 @@ const Form = ({ route }) => {
     cardCVV: '',
   });
 
+  // funzione che aggiorna lo stato newUser con i valori inseriti dall'utente
   const handleInputChange = (field, value) => {
+    // aggiorno lo stato newUser con il campo field e il valore value
     setNewUser((prevObj) => ({ ...prevObj, [field]: value }));
   };
 
+  // funzione che controlla che i campi inseriti siano validi
   const validateForm = () => {
     const errors = [];
+    // regex per controllare che i campi siano composti solo da lettere e spazi
     const nameRegex = /^[a-zA-Z\s]+$/;
 
+    // firstName deve contenere solo lettere e spazi e deve essere di 15 caratteri o meno
     if (newUser.firstName) {
       if (newUser.firstName.length > 15) {
         errors.push('Il nome deve essere di 15 caratteri o meno');
@@ -47,6 +56,7 @@ const Form = ({ route }) => {
       }
     }
 
+    // lastName deve contenere solo lettere e spazi e deve essere di 15 caratteri o meno
     if (newUser.lastName) {
       if (newUser.lastName.length > 15) {
         errors.push('Il cognome deve essere di 15 caratteri o meno');
@@ -56,6 +66,7 @@ const Form = ({ route }) => {
       }
     }
 
+    // cardFullName deve contenere solo lettere e spazi e deve essere di 31 caratteri o meno
     if (newUser.cardFullName) {
       if (newUser.cardFullName.length > 31) {
         errors.push('Il nome sulla carta deve essere di 31 caratteri o meno');
@@ -65,10 +76,12 @@ const Form = ({ route }) => {
       }
     }
 
+    // cardNumber deve essere di 16 cifre esatte e deve contenere solo numeri
     if (newUser.cardNumber && (!/^\d+$/.test(newUser.cardNumber) || newUser.cardNumber.length !== 16)) {
       errors.push('Il numero della carta deve essere esattamente di 16 cifre');
     }
 
+    // cardExpireMonth deve essere un numero tra 1 e 12
     if (newUser.cardExpireMonth) {
       const month = parseInt(newUser.cardExpireMonth, 10);
       if (isNaN(month) || month < 1 || month > 12) {
@@ -76,14 +89,17 @@ const Form = ({ route }) => {
       }
     }
 
+    // cardExpireYear deve essere di 4 cifre esatte e deve contenere solo numeri
     if (newUser.cardExpireYear && (!/^\d{4}$/.test(newUser.cardExpireYear)) ) {
       errors.push("L'anno di scadenza della carta deve essere esattamente di 4 cifre");
     }
 
+    // cardExpireYear non può essere minore dell'anno corrente
     if (newUser.cardExpireYear && parseInt(newUser.cardExpireYear, 10) < new Date().getFullYear()) {
-
       errors.push('Non puoi usare una carta scaduta!');
     }
+
+    // cardCVV deve essere di 3 cifre esatte e deve contenere solo numeri
     if (newUser.cardCVV && (!/^\d{3}$/.test(newUser.cardCVV))) {
       errors.push('Il CVV della carta deve essere esattamente di 3 cifre');
     }
@@ -91,14 +107,18 @@ const Form = ({ route }) => {
     return errors;
   };
 
+  // funzione che permette di salvare le modifiche fatte dall'utente al profilo
   const onClickOnButton = async (formScreen) => {
+    // controllo che i campi siano validi
     const errors = validateForm();
 
+    // se ci sono errori, mostro un alert
     if (errors.length > 0) {
       Alert.alert('Validation Error', errors.join('\n'));
       return;
     }
 
+    // parametri da passare al server per aggiornare l'utente, se il campo è vuoto, mantengo il valore attuale dell'utente 
     let bodyParams = {
       firstName: newUser.firstName !== '' ? newUser.firstName : user.firstName,
       lastName: newUser.lastName !== '' ? newUser.lastName : user.lastName,
@@ -109,21 +129,30 @@ const Form = ({ route }) => {
       cardCVV: newUser.cardCVV !== '' ? newUser.cardCVV : user.cardCVV,
       sid: user.sid,
     };
+
+    // se i campi non sono validi, mostro un alert
     if (!ViewModel.isValidUser({...bodyParams, uid: user.uid})) {
       Alert.alert('Validation Error', 'Please fill in all required fields to complete your profile');
       return;
     }
+
+    // se i campi sono validi, aggiorno l'utente sul server e localmente
     try {
       await CommunicationController.UpdateUser(user.uid, user.sid, bodyParams);
     } catch (error) {
       console.log('Error in updating user: ', error);
+      // se c'è un errore, mostro un alert
       Alert.alert('Error', 'Failed to update user information');
       return;
     }
 
+    // recupero l'utente aggiornato dal server
     let serverUser = await CommunicationController.getUser(user.uid, user.sid);
+    // aggiungo uid e sid all'utente
     serverUser = { ...serverUser, uid: user.uid, sid: user.sid };
+    // aggiorno lo user in ViewModel
     ViewModel.user = serverUser;
+    // salvo l'utente localmente nell'async storage
     try {
       await ViewModel.storageManager.saveUserAsync(serverUser);
     } catch (error) {
@@ -132,6 +161,7 @@ const Form = ({ route }) => {
       return;
     }
 
+    // se before è Info, vado alla schermata ProfilePage di Profile, altrimenti vado alla schermata ConfirmOrder di Home
     if (formScreen === 'Info') {
       navigation.navigate('ProfilePage', { user: serverUser });
     } else if (formScreen === 'Home') {
@@ -139,26 +169,33 @@ const Form = ({ route }) => {
     }
   };
 
+  // funzione che renderizza un campo di input, quando l'utente digita nel campo, handleInputChange aggiorna newUser
   const renderInput = (field, placeholder, icon, keyboardType = 'default') => (
     <View style={styles.inputContainer}>
       <Ionicons name={icon} size={24} color="#ffffff" style={styles.inputIcon} />
       <TextInput
-        value={newUser[field]}
+        value={newUser[field]} // legge valore del campo corrispondente dallo stato newUser
         style={styles.input}
-        onChangeText={(text) => handleInputChange(field, text)}
+        onChangeText={(text) => handleInputChange(field, text)} // aggiorna lo stato newUser con il valore inserito dall'utente
         placeholder={placeholder}
         placeholderTextColor="#b3d4fc"
         keyboardType={keyboardType}
       />
     </View>
   );
+
+  // salva Form come ultima pagina visitata
   const savePage = async () => {
     await ViewModel.saveLastScreenAsync("Form");
   };
 
+  // salva Form come ultima pagina visitata
   useEffect(() => {
     savePage();
   }, []);
+
+  // renderizzo il form con i campi da compilare per modificare il profilo utente
+  //campi renderInput : 1° nome del campo (key per la form), 2° placeholder, 3° icona, 4° tipo di tastiera 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -180,6 +217,7 @@ const Form = ({ route }) => {
 
           <TouchableOpacity
             style={styles.button}
+            // se before è ProfilePage, al click del button Salva vado alla schermata Info, altrimenti vado alla Home
             onPress={() => onClickOnButton(before === 'ProfilePage' ? 'Info' : 'Home')}
           >
             <Text style={styles.buttonText}>Salva</Text>
@@ -245,4 +283,9 @@ const styles = StyleSheet.create({
 });
 
 export default Form;
+
+//Sintesi del flusso:
+// 1. renderInput visualizza un campo di input, collegato a una proprietà di newUser.
+// 2. Quando l'utente digita nel campo, handleInputChange aggiorna newUser.
+// 3. Alla pressione del pulsante "Salva", validateForm utilizza i valori in newUser per verificare la validità della form.
 
