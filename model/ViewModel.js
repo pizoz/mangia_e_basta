@@ -340,12 +340,14 @@ class ViewModel {
   //conferma l'ordine (quando il profilo è già completo) e lo invia al server
   static async confirmOrder(menu, user, coords) {
     try {
+      //crea l'ordine
       let order = await CommunicationController.createOrder(
         menu.mid,
         user.sid,
         coords.latitude,
         coords.longitude
       );
+      //salva l'oid dell'ordine e lo status dell'ordine nell'utente
       this.lastOid = order.oid;
       const newUser = {
         ...user,
@@ -356,9 +358,11 @@ class ViewModel {
       await this.saveUserAsync(newUser);
       console.log(newUser);
       this.user = newUser;
+      //restituisce l'ordine e il nuovo utente
       return { order, newUser };
     } catch (error) {
       console.log(error);
+      //se l'errore è dovuto al fatto che l'utente ha già un ordine attivo, lancia un errore personalizzato
       if (
         error.message ===
         'Error message from the server. HTTP status: 409 {"message":"User already has an active order"}'

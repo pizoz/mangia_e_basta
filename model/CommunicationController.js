@@ -94,6 +94,7 @@ export default class CommunicationController {
       return await this.genericRequest(endpoint, verb, queryParams, {});
     }
 
+    // richiesta API per confermare l'ordine
     static async createOrder(mid, sid, lat, lng) {
       const endpoint = "menu/" + mid + "/buy";
       const verb = "POST";
@@ -101,6 +102,8 @@ export default class CommunicationController {
       console.log("Richiesta POST per creare ordine");
       return await this.genericRequest(endpoint, verb, {}, bodyParams);
     }
+
+    
     static async getOrder(oid, sid) {
       const endpoint = "order/" + oid;
       const verb = "GET";

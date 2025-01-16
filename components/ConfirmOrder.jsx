@@ -4,6 +4,7 @@ import ViewModel from "../model/ViewModel";
 import { useState, useEffect } from "react";
 import LoadingScreen from "./LoadingScreen";
 
+// ConfirmOrder è il componente che mostra i dettagli dell'ordine e permette di confermarlo
 const ConfirmOrder = ({ navigation }) => {
   const [lastMenu, setLastMenu] = useState(null);
   const user = ViewModel.user;
@@ -11,35 +12,45 @@ const ConfirmOrder = ({ navigation }) => {
 
   const [address, setAddress] = useState(null);
 
+  // funzione per recuperare l'indirizzo dell'utente e l'ultimo menu visitato da async storage e ViewModel 
+  const fetchData = async () => {
+    // salva la schermata visitata in async storage
+    await ViewModel.saveLastScreenAsync("ConfirmOrder");
+    // recupera l'indirizzo dell'utente 
+    const address = await ViewModel.getAddress(locationCoords);
+    setAddress(address.formattedAddress);
+    // recupera utente da async storage
+    const utente = await ViewModel.getUserFromAsyncStorage();
+    // recupera l'ultimo menu visitato
+    setLastMenu(await ViewModel.getLastMenu());
+
+    ViewModel.user = utente;
+  };
+
+  // inizializza il componente con l'ultimo menu e l'indirizzo dell'utente
   useEffect(() => {
-    const fetchData = async () => {
-      await ViewModel.saveLastScreenAsync("ConfirmOrder");
-      const address = await ViewModel.getAddress(locationCoords);
-      setAddress(address.formattedAddress);
-      const utente = await ViewModel.getUserFromAsyncStorage();
-
-      setLastMenu(await ViewModel.getLastMenu());
-
-      ViewModel.user = utente;
-    };
     fetchData();
   }, []);
 
+  // funzione per confermare l'ordine
   const handleConfirmOrder = async () => {
+    // chiamo la funzione confirmOrder di ViewModel per confermare l'ordine
     try {
-    
       const order = await ViewModel.confirmOrder(
         lastMenu,
         user,
         locationCoords
       );
+      // se l'ordine è undefined, non faccio nulla
       if (order === undefined) {
         return;
       }
       console.log("Order confirmed");
       navigation.navigate("Order");
     } catch (error) {
+      // se c'è un errore, mostro un alert
       console.log("ERRORE", error);
+      // se lo status è 409, mostro un alert che dice che non puoi ordinare per ora perchè hai già un ordine attivo
       if (error.status === 409) {
         Alert.alert(
           "Non puoi ordinare per ora, hai già un ordine attivo!",
@@ -52,6 +63,7 @@ const ConfirmOrder = ({ navigation }) => {
           { cancelable: true }
         );
       } else {
+        // altrimenti, mostro un alert che dice che la carta non è valida
         Alert.alert(
           "Carta non valida!",
           "",
@@ -66,14 +78,13 @@ const ConfirmOrder = ({ navigation }) => {
     }
   };
 
-  // if (!address) {
-  //   return <LoadingScreen />;
-  // }
+  // se non ho l'utente o l'ultimo menu, mostro il componente di caricamento
   if (!user || !lastMenu) {
     console.log("User: ", user);
     console.log("LastMenu: ", lastMenu);
     return <LoadingScreen />;
   }
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Review Your Order</Text>
@@ -95,16 +106,18 @@ const ConfirmOrder = ({ navigation }) => {
       </View>
       <View style={styles.buttonRow}>
         <TouchableOpacity
-          style={[styles.button, styles.confirmButton]}
-          onPress={handleConfirmOrder}
-        >
-          <Text style={styles.buttonText}>✅ Conferma l'Ordine</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+        // se premo il button "Cancella", navigo alla schermata Menu
           style={[styles.button, styles.cancelButton]}
           onPress={() => navigation.navigate("Menu")}
         >
-          <Text style={styles.buttonText}>❌ Cancella</Text>
+          <Text style={styles.buttonText}> Cancella</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+        // se premo il button "Conferma l'Ordine", chiamo la funzione handleConfirmOrder
+          style={[styles.button, styles.confirmButton]}
+          onPress={handleConfirmOrder}
+        >
+          <Text style={styles.buttonText}> Conferma l'Ordine</Text>
         </TouchableOpacity>
       </View>
     </View>
