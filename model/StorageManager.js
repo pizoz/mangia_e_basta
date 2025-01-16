@@ -1,35 +1,35 @@
 import * as SQLite from "expo-sqlite";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 export default class StorageManager {
-  // Database
+  // Database 
   constructor() {
     this.db = null;
   }
+
+  // apre il database e crea le tabelle se non esistono 
   async openDB() {
-    // apre il database e crea le tabelle se non esistono 
-    // TODO: la tabella degli utenti serve? Secondo me no
     console.log("openDB");
+
+    // Apre il database 
     this.db = await SQLite.openDatabaseAsync("usersDB", {
       useNewConnection: true,
     });
+
+    // Crea le tabelle se non esistono
+    // users: contiene l'uid e il sid dell'utente
+    // menuImages: contiene le immagini dei menu con mid, imageVersion e image
     const query =
       "CREATE TABLE IF NOT EXISTS users (ID INTEGER PRIMARY KEY AUTOINCREMENT, uid INTEGER, sid TEXT); CREATE TABLE IF NOT EXISTS menuImages (mid INTEGER PRIMARY KEY, imageVersion INTEGER, image TEXT)";
     await this.db.execAsync(query);
   }
+
+  // salva l'utente nel database 
   async saveUserInDB(uid, sid) {
     console.log("saveUserInDB");
     const query = "INSERT INTO users (uid, sid) VALUES (?, ?)";
     await this.db.runAsync(query, uid, sid);
   }
   
-  async createUserInDB() {
-    console.log("createUserInDB");
-    await User.create().then((user) => {
-      this.saveUser(user.uid, user.sid).then(() => {
-        console.log("Utente salvato");
-      });
-    });
-  }
   async getUserFromDB() {
     console.log("getUserFromDB");
     const query = "SELECT * FROM users";
@@ -81,6 +81,7 @@ export default class StorageManager {
     await AsyncStorage.setItem("user", JSON.stringify(user));
   }
   
+  // recupera l'utente da async storage 
   async getUserAsync() {
     console.log("getUserAsync");
     let user = null;
@@ -91,6 +92,7 @@ export default class StorageManager {
     }
     return JSON.parse(user);
   }
+
   async deleteUserAsync() { // cambia da lstScreen Data a lastMenu
 
 
@@ -111,6 +113,8 @@ export default class StorageManager {
 
     
   }
+
+  // restituisce un oggetto con l'ultima schermata visitata e l'ultimo menu visitato
   async getLastScreenAsync() {
     console.log("getLastScreenAsync");
     const screen = await AsyncStorage.getItem("lastScreen");
@@ -119,6 +123,7 @@ export default class StorageManager {
 
     return { screen, lastMenu: JSON.parse(lastMenu) };
   }
+  
   async getLastMenuAsync() {
     console.log("getLastMenuAsync");
     const lastMenu = await AsyncStorage.getItem("lastMenu");

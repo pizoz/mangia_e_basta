@@ -14,7 +14,9 @@ export default function App() {
   const [changed, setChanged] = useState(false);
   const [lastScreen, setLastScreen] = useState(null);
 
+  // Aggiorna lo stato dell'app quando l'app cambia stato
   useEffect(() => {
+    // Inizializza l'app e imposta lo stato iniziale dell'app 
     ViewModel.initApp().then((res) => {
       setFirstRun(res.firstRun);
       setUser(res.user);
@@ -23,10 +25,12 @@ export default function App() {
     });
   }, [changed]);
 
+  // Funzione per gestire il cambio di autorizzazione della posizione
   const handleChangePress = () => {
     setChanged(!changed);
   };
 
+  // Se l'app è in fase di avvio, mostra il componente di avvio
   if (firstRun) {
     return (
       <View style={styles.container}>
@@ -35,10 +39,15 @@ export default function App() {
     );
   }
   console.log("FirstRun ", firstRun);
+
+  // Se l'app è stata avviata e l'utente ha autorizzato la posizione, mostra l'app dall'ultima schermata visitata se ho i permessi di localizzazione
   if (firstRun === false) {
+    // Se ho l'utente e la posizione, mostro l'app
     if (user !== null && location !== null) {
+      // mostra l'app dall'ultima schermata visitata andando a Root passando user e lastScreen, lastScreen è passato come props, dopo aver fatto initApp 
       return <Root user={user} lastScreen={lastScreen} />;
     } else {
+      // Se non ho l'utente o la posizione, mostro il messaggio per autorizzare la posizione
       return (
         <View style={styles.container}>
           <View style={styles.box}>
@@ -59,6 +68,8 @@ export default function App() {
       );
     }
   }
+
+  // schermo di caricamento per gestire il caricamento dell'app
   return <LoadingScreen />;
 }
 

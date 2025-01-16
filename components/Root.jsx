@@ -11,10 +11,17 @@ import Order from "./Order";
 import Form from "./Form";
 import ViewModel from "../model/ViewModel";
 
+// creo tab navigator con Home, Order e Profile
 const Tab = createBottomTabNavigator();
+
+// creo stack navigator per Home e Profile
 const HomeStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 
+// funzione per creare lo stack navigator per HomeScreen passando user e initialRouteName
+// initialRouteName è la schermata iniziale da mostrare
+// lo stack navigator per HomeScreen ha Homepage, Menu e ConfirmOrder
+// ciascuna schermata ha unu componente diverso da mostrare 
 function HomeScreenStack({ route }) {
   const { user, initialRouteName } = route.params;
   return (
@@ -32,6 +39,9 @@ function HomeScreenStack({ route }) {
   );
 }
 
+// funzione per creare lo stack navigator per ProfileScreen passando user e initialRouteName
+// initialRouteName è la schermata iniziale da mostrare
+// lo stack navigator per ProfileScreen ha ProfilePage e Form
 function ProfileScreenStack({ route }) {
   const { user, initialRouteName } = route.params;
   return (
@@ -46,9 +56,17 @@ function ProfileScreenStack({ route }) {
   );
 }
 
+// Root è il componente che mostra il tab navigator con Home, Order e Profile
+// in base all'ultima schermata visitata, mostra la schermata corrispondente
 const Root = ({ user, lastScreen }) => {
   const initialRouteNames = ViewModel.getInitialRouteNames(lastScreen);
   
+  // Tab navigator con Home, Order e Profile, 
+  // -Home ha HomeScreenStack, Order ha Order e Profile ha ProfileScreenStack
+  // ->HomeScreenStack ha Homepage, Menu e ConfirmOrder
+  // ->ProfileScreenStack ha ProfilePage e Form
+  // dalla Root si può navigare tra le schermate Home, Order e Profile 
+  // in base al lastScreen vado alla schermata corrispondente passata da getInitialRouteNames
   return (
     <NavigationContainer>
       <Tab.Navigator

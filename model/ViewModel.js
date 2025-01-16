@@ -9,21 +9,26 @@ class ViewModel {
   static lastMenu = null;
   static user = null;
   static lastOid = null;
+
   // Inizializza StorageManager e PositionController, nel caso in cui ci sia bisogno di aprire il database, lo apre
   static async initViewModel(db) {
     // il valore db indica un booleano: true se si vuole aprire il database, false altrimenti
+    
     // in entrambi i casi si inizializza lo storageManager se non è già stato inizializzato
     if (!this.storageManager) {
       this.storageManager = new StorageManager();
     }
+    // in entrambi i casi si inizializza il positionController se non è già stato inizializzato
     if (!this.positionController) {
       this.positionController = new PositionController();
     }
-
+    // se db è true, allora apro il database
     if (db) {
       await this.storageManager.openDB();
     }
   }
+
+
   // Restituisce l'utente dal database, se non lo trova, lo crea, lo salva nel database e lo restituisce
   static async getUserFromDB() {
     await this.initViewModel(true);
@@ -65,12 +70,12 @@ class ViewModel {
         console.log(error);
       }
       // lo restituisco
-      console.log(finalUser)
+      console.log(finalUser);
       return finalUser;
     } else {
       // altrimenti lo restituisco direttamente dall'AsyncStorage
       this.user = user;
-      console.log(user)
+      console.log(user);
       return user;
     }
   }
@@ -185,11 +190,16 @@ class ViewModel {
     }
     return menus;
   }
+
+  // Controlla se è il primo avvio dell'app, se non c'è un utente nell'AsyncStorage restituisce true, altrimenti false
   static async checkFirstRun() {
     console.log("checkFirstRun");
+    // inizializza il positionController e lo storageManager se non sono già stati inizializzati e non apre il database 
     await this.initViewModel(false);
+
     let firstRun = false;
     let user = null;
+    // cerca l'utente nell'AsyncStorage e se non lo trova setta firstRun a true 
     try {
       user = await this.storageManager.getUserAsync();
     } catch (error) {
@@ -200,17 +210,24 @@ class ViewModel {
     }
     return firstRun;
   }
+
+  // Inizializza l'app, controlla se è il primo avvio, 
+  // -> se lo è restituisce un oggetto con firstRun a true e user a null, 
+  // -> altrimenti restituisce un oggetto con firstRun a false, l'utente trovato nell'AsyncStorage e la posizione attuale del dispositivo (se permessi concessi)
   static async initApp() {
     console.log("initApp");
+
     //  inizializza il positionController e lo storageManager
     await this.initViewModel(false);
+
     // controlla se è il primo avvio dell'app controllando se c'è un utente nell'AsyncStorage
     const firstRun = await this.checkFirstRun();
-    // se è la prima volta che avviamo l'app restituisce un oggetto con firstRun a true e user a null
+
+    // se è la prima volta che avviamo l'app restituisce un oggetto con firstRun a true e user a null e posizione a null
     if (firstRun) {
       return { firstRun: firstRun, user: null, location: null };
     } else {
-      // altrimenti restituisce false,  l'utente trovato nell'AsyncStorage e la posizione attuale
+      // altrimenti restituisce un ogetto con firstRun: false, l'utente trovato nell'AsyncStorage, la posizione attuale e l'ultimo screen visitato
       const user = await this.getUserFromAsyncStorage();
       const lastScreen = await this.storageManager.getLastScreenAsync();
       this.user = user;
@@ -219,10 +236,11 @@ class ViewModel {
         firstRun: firstRun,
         user: user,
         location: this.positionController.location,
-        lastScreen: lastScreen.screen
+        lastScreen: lastScreen.screen,
       };
     }
   }
+  
   static async getMenuDetail(menu, user) {
     let newMenu = await CommunicationController.GetMenu(
       menu.mid,
@@ -363,10 +381,17 @@ class ViewModel {
   }
   static async getMenu(mid, sid) {
     const coords = this.getLocationCoords();
-    return await CommunicationController.GetMenu(mid, sid, coords.latitude, coords.longitude);
+    return await CommunicationController.GetMenu(
+      mid,
+      sid,
+      coords.latitude,
+      coords.longitude
+    );
   }
+
+  //salva l'utente nell'AsyncStorage e nel ViewModel
   static async saveUserAsync(user) {
-    console.log("utenteSalvatoo: ",user);
+    console.log("utenteSalvatoo: ", user);
     this.user = user;
     await this.storageManager.saveUserAsync(user);
   }
@@ -376,7 +401,8 @@ class ViewModel {
     const date = parts[0];
     let dateParts = date.split("-");
     const time = parts[1].split(".")[0].slice(0, -3);
-    let string = dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0] + " ore " + time;
+    let string =
+      dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0] + " ore " + time;
     return string;
   }
 
@@ -392,56 +418,74 @@ class ViewModel {
     console.log(this.lastMenu);
     await this.storageManager.saveUserAsync(this.user);
     await this.storageManager.saveLastScreenAsync(screen, this.lastMenu);
-
-
   }
   static async getLastScreenAsync() {
     console.log("getLastScreenAsync");
     const screen = await this.storageManager.getLastScreenAsync();
-    console.log(screen.screen!==null?screen.screen:"null");
+    console.log(screen.screen !== null ? screen.screen : "null");
     ViewModel.setLastScreen(screen.screen);
     ViewModel.setLastMenu(JSON.parse(screen.lastMenu));
     return screen;
   }
-  static getInitialRouteNames(lastScreen) {
-      let initialRouteNames = new Map();
-  
-      switch (lastScreen) {
-        case "Menu":
-          initialRouteNames.set("Root", "Home");
-          initialRouteNames.set("Home", "Menu");
-          initialRouteNames.set("Profile", "ProfilePage");
-          break;
-        case "ConfirmOrder":
-          initialRouteNames.set("Root", "Home");
-          initialRouteNames.set("Home", "ConfirmOrder");
-          initialRouteNames.set("Profile", "ProfilePage");
-          break;
-        case "Homepage":
-          initialRouteNames.set("Root", "Home");
-          initialRouteNames.set("Home", "Homepage");
-          initialRouteNames.set("Profile", "ProfilePage");
-          break;
-  
-        case "ProfilePage":
-          initialRouteNames.set("Root", "Profile");
-          initialRouteNames.set("Home", "Homepage");
-          initialRouteNames.set("Profile", "ProfilePage");
-          break;
-        case "Form":
-          initialRouteNames.set("Root", "Profile");
-          initialRouteNames.set("Home", "Homepage");
-          initialRouteNames.set("Profile", "Form");
-          break;
-        case "Order":
-          initialRouteNames.set("Root", "Order");
-          initialRouteNames.set("Home", "Homepage");
-          initialRouteNames.set("Profile", "ProfilePage");
-          break;
-        default:
-      }
-      return initialRouteNames;
-    }
 
+  // Restituisce le schermate iniziali in base all'ultima schermata visitata
+  static getInitialRouteNames(lastScreen) {
+    
+    let initialRouteNames = new Map();
+  
+    switch (lastScreen) {
+      // in base all'ultima schermata visitata, mostra la schermata corrispondente
+
+      // se l'ultima schermata visitata è Menu, allora 
+      case "Menu":
+        // setto la schermata iniziale di Root a Home, la schermata iniziale di Home a Menu e la schermata iniziale di Profile a ProfilePage
+        initialRouteNames.set("Root", "Home");
+        initialRouteNames.set("Home", "Menu");
+        initialRouteNames.set("Profile", "ProfilePage");
+        break;
+
+      // se l'ultima schermata visitata è ConfirmOrder
+      case "ConfirmOrder":
+        //setto la schermata iniziale di Root a Home, la schermata inziale di Home a ConfirmOrder e la schermata inziale di Profile a Profilepage
+        initialRouteNames.set("Root", "Home");
+        initialRouteNames.set("Home", "ConfirmOrder");
+        initialRouteNames.set("Profile", "ProfilePage");
+        break;
+
+      // se l'ultima schermata visitata è ProfilePage
+      case "Homepage":
+        // setto la schermata iniziale di Root a Home, la schermata iniziale di Home a Homepage e la schermata iniziale di Profile a ProfilePage
+        initialRouteNames.set("Root", "Home");
+        initialRouteNames.set("Home", "Homepage");
+        initialRouteNames.set("Profile", "ProfilePage");
+        break;
+
+      // se l'ultima schermata visitata è ProfilePage
+      case "ProfilePage":
+        // setto la schermata iniziale di Root a Profile, la schermata iniziale di Home a Homepage e la schermata iniziale di Profile a ProfilePage
+        initialRouteNames.set("Root", "Profile");
+        initialRouteNames.set("Home", "Homepage");
+        initialRouteNames.set("Profile", "ProfilePage");
+        break;
+      
+      // se l'ultima schermata visitata è Form
+      case "Form":
+        // setto la schermata iniziale di Root a Profile, la schermata iniziale di Home a Homepage e la schermata iniziale di Profile a Form
+        initialRouteNames.set("Root", "Profile");
+        initialRouteNames.set("Home", "Homepage");
+        initialRouteNames.set("Profile", "Form");
+        break;
+      
+      // se l'ultima schermata visitata è Order
+      case "Order":
+        // setto la schermata iniziale di Root a Order, la schermata iniziale di Home a Homepage e la schermata iniziale di Profile a ProfilePage
+        initialRouteNames.set("Root", "Order");
+        initialRouteNames.set("Home", "Homepage");
+        initialRouteNames.set("Profile", "ProfilePage");
+        break;
+      default:
+    }
+    return initialRouteNames;
+  }
 }
 export default ViewModel;

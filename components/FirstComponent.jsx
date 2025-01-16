@@ -12,18 +12,25 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import LoadingScreen from "./LoadingScreen";
 const { width, height } = Dimensions.get("window");
 
+// FirstComponent è il componente che viene mostrato all'avvio dell'applicazione, per chiedere all'utente di condividere la sua posizione
+// passo come props setUser e setChanged per poter aggiornare lo stato dell'app
 const FirstComponent = ({ setChanged, setUser}) => {
 
   const [screen, setScreen] = useState("FirstScreen");
-
+  // Funzione per gestire il button "Continua"
   const onSubmit = async () => {
+    // setto user con i dati dell'utente
     const user = await ViewModel.getUserFromAsyncStorage();
     setUser(user);
+    // calcola la posizione attuale e la salva in location se ci sono i permessi
     await ViewModel.positionController.getLocationAsync();
+    // inizializza setChanged a true quando premo "Continua" nella seconda schermata
     setChanged(true);
 
   };
 
+  // se screen è FirstScreen, mostro il logo iniziale con il button "Inizia"
+  // se premo il button, setto screen a SecondScreen
   if (screen === "FirstScreen") {
     return (
       <Fragment>
@@ -45,7 +52,11 @@ const FirstComponent = ({ setChanged, setUser}) => {
         </SafeAreaView>
       </Fragment>
     );
-  } else if (screen === "SecondScreen") {
+  } 
+
+  // se screen è SecondScreen, mostro il titolo "Condividi la tua posizione" e il button "Continua"
+  // se premo il button, chiamo la funzione onSubmit che setta user e location e setto changed a true
+  else if (screen === "SecondScreen") {
     return (
       <SafeAreaView style={styles.containerSecond}>
         <View style={styles.content}>
@@ -66,7 +77,8 @@ const FirstComponent = ({ setChanged, setUser}) => {
       </SafeAreaView>
     );
   }
-
+  
+  // se screen non è nè FirstScreen nè SecondScreen, mostro il componente di caricamento
   return (
     <LoadingScreen/>
   );
