@@ -41,6 +41,7 @@ class ViewModel {
       return user;
     }
   }
+
   // Restituisce l'utente dall'AsyncStorage, se non lo trova, lo crea, lo salva nell'AsyncStorage e lo restituisce
   static async getUserFromAsyncStorage() {
     await this.initViewModel(false);
@@ -78,8 +79,10 @@ class ViewModel {
       return user;
     }
   }
+
   // Restituisce un menu senza immagine ma con longDesc
   static async GetMenu(mid, sid) {
+    
     await this.initViewModel(false);
     console.log(
       this.positionController.location.coords.latitude,
@@ -97,6 +100,16 @@ class ViewModel {
       console.log(error);
     }
     return null;
+  }
+
+  static async getMenu(mid, sid) {
+    const coords = this.getLocationCoords();
+    return await CommunicationController.GetMenu(
+      mid,
+      sid,
+      coords.latitude,
+      coords.longitude
+    );
   }
 
   // Restituisce il PositionController
@@ -187,6 +200,7 @@ class ViewModel {
     await this.storageManager.deleteDB();
     await this.storageManager.deleteUserAsync();
   }
+  
   // Restituisce i 20 menu più vicini alla posizione passata con le immagini aggiornate
   static async getMenus(sid) {
     console.log("getMenus");
@@ -374,11 +388,13 @@ class ViewModel {
       throw error;
     }
   }
-  //restituisce l'ordine con l'oid passato
+
+  // restituisce l'ordine con l'oid passato e il sid dell'utente
   static async getOrder(oid, sid) {
     return await CommunicationController.getOrder(oid, sid);
   }
 
+  // Restituisce il tempo rimanente per la consegna
   static async getTimeRemaining(deliveryTimestamp) {
     const now = new Date(); // Tempo corrente
     const deliveryTime = new Date(deliveryTimestamp); // Converte il timestamp di consegna in un oggetto Date
@@ -407,15 +423,6 @@ class ViewModel {
     // Formatta la risposta in un formato leggibile
     return string;
   }
-  static async getMenu(mid, sid) {
-    const coords = this.getLocationCoords();
-    return await CommunicationController.GetMenu(
-      mid,
-      sid,
-      coords.latitude,
-      coords.longitude
-    );
-  }
 
   //salva l'utente nell'AsyncStorage e nel ViewModel
   static async saveUserAsync(user) {
@@ -424,6 +431,7 @@ class ViewModel {
     await this.storageManager.saveUserAsync(user);
   }
 
+  // dal timestamp restituisce la data e l'ora
   static fromTimeStampToDayAndTime(timestamp) {
     const parts = timestamp.split("T");
     const date = parts[0];
@@ -447,10 +455,14 @@ class ViewModel {
     await this.storageManager.saveUserAsync(this.user);
     await this.storageManager.saveLastScreenAsync(screen, this.lastMenu);
   }
+
+  // funzione che recupera l'ultima schermata visitata dall'async (e menu) storage e setta lastScreen e lastMenu
   static async getLastScreenAsync() {
     console.log("getLastScreenAsync");
+    // recupero la schermata visitata dall'async storage (con l'ultimo menu visitato)
     const screen = await this.storageManager.getLastScreenAsync();
     console.log(screen.screen !== null ? screen.screen : "null");
+    // setto lastScreen e lastMenu nel ViewModel
     ViewModel.setLastScreen(screen.screen);
     ViewModel.setLastMenu(JSON.parse(screen.lastMenu));
     return screen;
@@ -480,7 +492,7 @@ class ViewModel {
         initialRouteNames.set("Profile", "ProfilePage");
         break;
 
-      // se l'ultima schermata visitata è ProfilePage
+      // se l'ultima schermata visitata è Homepage
       case "Homepage":
         // setto la schermata iniziale di Root a Home, la schermata iniziale di Home a Homepage e la schermata iniziale di Profile a ProfilePage
         initialRouteNames.set("Root", "Home");

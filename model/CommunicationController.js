@@ -103,7 +103,7 @@ export default class CommunicationController {
       return await this.genericRequest(endpoint, verb, {}, bodyParams);
     }
 
-    
+    // richiesta API per ottenere un ordine (se passo loid di user mi restituisce l'ultimo ordine)
     static async getOrder(oid, sid) {
       const endpoint = "order/" + oid;
       const verb = "GET";

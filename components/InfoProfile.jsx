@@ -14,41 +14,45 @@ import { Ionicons } from "@expo/vector-icons";
 import ViewModel from "../model/ViewModel";
 import LoadingScreen from "./LoadingScreen";
 
+// InfoProfile è il componente che mostra le informazioni dell'utente
 const InfoProfile = () => {
+  // variabili di stato per utente, ordine e menu
   const [user, setUser] = useState(ViewModel.user);
   const [order, setOrder] = useState(null);
   const [menu, setMenu] = useState(null);
+  // variabili per la navigazione e l'animazione
   const navigation = useNavigation();
-  const isFocused = useIsFocused();
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const isFocused = useIsFocused(); // per capire se la schermata è attiva, serve per fare il fetch dei dati
 
+  // funzione per recuperare l'utente da async storage e i dettagli dell'ordine e del menu se esistono
   const fetchUser = async () => {
     try {
+      // recupera l'utente da async storage
       const res = await ViewModel.storageManager.getUserAsync();
       console.log("res:  ", res);
       let order = null;
       let menu = null;
+      // se l'utente ha un ordine, recupera l'ordine e il menu
       if (res.lastOid != null) {
         order = await ViewModel.getOrder(res.lastOid, res.sid);
         menu = await ViewModel.getMenu(order.mid, res.sid);
       }
+      // setta le variabili di stato
       setUser(res);
       setMenu(menu);
       setOrder(order);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
+      
     } catch (error) {
       console.error("Error fetching user:", error);
     }
   };
 
+  // effetto per fare il fetch dell'utente quando la schermata è attiva
   useEffect(() => {
     fetchUser();
   }, [isFocused]);
 
+  // se non ho l'utente, mostro il componente di caricamento
   if (!user) {
     return <LoadingScreen />;
   }
@@ -129,6 +133,7 @@ const InfoProfile = () => {
 
         <TouchableOpacity
           style={styles.editButton}
+          // naviga alla schermata di modifica del profilo
           onPress={() => navigation.navigate("Form", { before: "ProfilePage" })}
         >
           <Text style={styles.editButtonText}>Modifica il profilo</Text>
@@ -138,6 +143,7 @@ const InfoProfile = () => {
   );
 };
 
+// componente InfoSection per raggruppare le informazioni
 const InfoSection = ({ title, children }) => (
   <View style={styles.section}>
     <Text style={styles.sectionTitle}>{title}</Text>
@@ -145,6 +151,7 @@ const InfoSection = ({ title, children }) => (
   </View>
 );
 
+// componente InfoItem per mostrare le informazioni
 const InfoItem = ({ icon, label, value }) => (
   <View style={styles.infoItem}>
     <View style={styles.infoItemLeft}>
@@ -171,13 +178,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatarContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 70,
     backgroundColor: "rgba(255, 255, 255, 0.3)",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 10,
+    //marginBottom: 10,
+    marginTop: 20,
   },
   avatarText: {
     fontSize: 40,

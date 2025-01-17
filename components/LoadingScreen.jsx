@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Image, ActivityIndicator } from 'react-native';
 
+// componente per mostrare la schermata di caricamento
 export default LoadingScreen = () => {
     return (
         <View style={styles.container}>
